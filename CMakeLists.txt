@@ -3,8 +3,7 @@ project(VCompiler)
 
 set(CMAKE_CXX_STANDARD 14)
 
-include_directories(lexer)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
 
-add_executable(VCompiler
-        lexer/lexer.cpp
-        lexer/lexer.hpp)
+add_subdirectory(lexer)
