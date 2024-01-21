@@ -1,47 +1,17 @@
-#include<iostream>
-#include<vector>
-#include<list>
-#include<string>
-#include<unordered_map>
-#include<unordered_set>
+#ifndef LEXER_HPP
+#define LEXER_HPP
 
-#include<fstream>
-//using
-using namespace std;
+#include "auto_machine.hpp"
+#include<memory>
 
-//表示空
-const char Nil='@';
-
-class DFAState {
-    //状态记录
-    vector<int> states_;
-    //可以转移到的状态
-    unordered_map<char, int> to_;
-};
-
-typedef unordered_map<int, DFAState> DFA;
-typedef unordered_map<int, unordered_map<char, vector<int>>> NFA;
-typedef pair<string,string> Rule;
+#endif
 
 enum class TokenType {
     Constant,
     Delimiter,
-    Operand,
+    Operator,
     Keyword,
     Identifier
-};
-
-enum class LabelType {
-    Scientific,
-    Delimiter,
-    Operator,
-    Identifier,
-};
-unordered_map<LabelType, string> label_mp{
-    {LabelType::Delimiter, "[delimiter]"},
-    {LabelType::Scientific,"[scientific]"},
-    {LabelType::Operator,"[operator]"},
-    {LabelType::Identifier,"[identifier]"}
 };
 
 class Token {
@@ -49,25 +19,32 @@ public:
     size_t line_;
     TokenType type_;
     string value_;
+
     Token(size_t line, TokenType type, string value) : line_(line), type_(type), value_(std::move(value)) {}
 };
 
 
-class AutoMachine {
+
+
+class Lexer {
 private:
     string rules_file_name_;
-    LabelType label_type_;
-
-    list<Rule> rules_;
-    vector<char> alphabets_;
-    NFA nfa_;
-    DFA dfa_;
-
+    unordered_map<LabelType, unique_ptr<AutoMachine>> auto_machines_;
 public:
-    static list<string> read_rules(const string& rules_file_name, const string& label);
 
-    void generate_rules(const list<string>& rules_string);
-    void init_rules();
+    unordered_set<string> key_words = {
+            "i32", "i64", "f32", "return",
+            "let", "fn", "if", "while", "break","else","continue"
+    };
 
-    AutoMachine(string rules_file_name,LabelType label_type);
+    bool is_key_word(const string& token);
+    Lexer() = delete;
+
+    Lexer(const string &rules_file_name);
+
+    string preprocessing(const string &file_name);
+
+    list<Token> analyze(const string &file_name);
 };
+
+

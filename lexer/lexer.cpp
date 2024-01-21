@@ -1,74 +1,117 @@
-#include"lexer.hpp"
+#include "lexer.hpp"
 
-#include <utility>
-
-//读取生成文件
-list<string> AutoMachine::read_rules(const std::string& rules_file_name, const std::string& label) {
-    list<string> rules_string;
-    try {
-        ifstream rules_file(rules_file_name);
-        if (!rules_file.is_open()) {
+string Lexer::preprocessing(const string& file_name){
+    string code;
+    size_t line=1;
+    string processed_code;
+    try{
+        ifstream code_file(file_name);
+        if(!code_file.is_open()){
             throw runtime_error("Can not open the file!");
         }
-        string line;
-        getline(rules_file, line);
-        while (line != label) {//连续读取直至目标行
-            getline(rules_file, line);
+        while(code_file.peek()!=EOF){//读取代码文件
+            code.push_back(static_cast<char>(code_file.peek()));
+            code_file.ignore();
         }
-        while (rules_file.peek() != EOF) {
-            getline(rules_file, line);
-            if (line.length() != 4 && line.length() != 5) {//判断是否符合三型文法
-                throw runtime_error("The format of rules are error");
+        size_t i=0;
+        while(i<=code.length()-1){
+            if(code[i]=='/'&&code[i+1]=='/'){//单行注释
+                while(code[i]!='\n'){
+                    i+=1;
+                }
+            }else{
+                processed_code.push_back(code[i]);
+                if(code[i]=='\n'){
+                    line+=1;
+                }
+                i+=1;
             }
-            rules_string.emplace_back(line);
-            if (rules_file.peek() == '[') {
-                break;
-            }
+
         }
-        rules_file.close();
-    } catch (const exception &e) {
-        cerr << e.what() << '\n';
+        code_file.close();
+    }catch (const exception& e){
+        cerr<<e.what()<<'\n';
     }
-    return rules_string;
-}
-
-AutoMachine::AutoMachine(string rules_file_name, LabelType label_type) : rules_file_name_(std::move(rules_file_name)),
-                                                                         label_type_(label_type) {
-    init_rules();
-}
-
-void AutoMachine::init_rules() {
-    list<string> rules_string=std::move(read_rules(rules_file_name_,label_mp[label_type_]));
-    generate_rules(rules_string);
-#ifdef DEBUG
-    for(const auto& rule: rules_){
-        cout<<rule.first<<':'<<rule.second<<'\n';
+    while(code.find('\t')!=string::npos){
+        code.erase(code.find('\t'),1);
     }
-#endif
-    unordered_set<char> terminals;
-    unordered_set<char> non_terminals;
-
+    return processed_code;
 }
 
-void AutoMachine::generate_rules(const list<string> &rules_string) {
-    try {
-        for (const string &rule_string: rules_string) {
-            size_t index = rule_string.find("->");
-            if (index == string::npos) {
-                throw runtime_error("The format of rules are error");
-            }
-            string left=rule_string.substr(0,index);
-            string right=rule_string.substr(index+2,rule_string.length()-index-2);
-            Rule rule{left,right};
-            rules_.emplace_back(rule);
+Lexer::Lexer(const string &rules_file_name):rules_file_name_(rules_file_name) {
+    auto_machines_.insert({LabelType::Operator, make_unique<AutoMachine>(rules_file_name,LabelType::Operator)});
+    auto_machines_.insert({LabelType::Delimiter, make_unique<AutoMachine>(rules_file_name,LabelType::Delimiter)});
+    auto_machines_.insert({LabelType::Identifier, make_unique<AutoMachine>(rules_file_name,LabelType::Identifier)});
+    auto_machines_.insert({LabelType::Scientific, make_unique<AutoMachine>(rules_file_name,LabelType::Scientific)});
+}
+
+list<Token> Lexer::analyze(const string &file_name) {
+    list<Token> tokens;
+    string code= preprocessing(file_name);
+    size_t line=1;
+    istringstream code_stream(code);
+    while(code_stream.peek()!=EOF){
+        int ch=code_stream.peek();
+        if(ch=='\n'){
+            line+=1;
         }
-    } catch (const exception &e) {
-        cerr << e.what() << '\n';
+        string part;
+        code_stream>>part;
+        cout<<part<<'\n';
+        int len=-1;
+        len=auto_machines_[LabelType::Identifier]->analyze(part);
+        if(len!=-1&&len!=0){
+            string token=part.substr(0,len);
+            cout<<token<<'\n';
+            if(is_key_word(token)){
+                Token new_token(line,TokenType::Keyword,token);
+                tokens.push_back(new_token);
+            }else{
+                Token new_token(line,TokenType::Identifier,token);
+            }
+            code_stream.ignore(len);
+            continue;
+        }
+        len=auto_machines_[LabelType::Delimiter]->analyze(part);
+        if(len!=-1&&len!=0){
+            string token=part.substr(0,len);
+            cout<<token<<'\n';
+            Token new_token(line,TokenType::Delimiter,token);
+            tokens.push_back(new_token);
+            code_stream.ignore(len);
+            continue;
+        }
+        len=auto_machines_[LabelType::Operator]->analyze(part);
+        if(len!=-1&&len!=0){
+            string token=part.substr(0,len);
+            cout<<token<<'\n';
+            Token new_token(line,TokenType::Operator,token);
+            tokens.push_back(new_token);
+            code_stream.ignore(len);
+            continue;
+        }
+        len=auto_machines_[LabelType::Scientific]->analyze(part);
+        if(len!=-1&&len!=0) {
+            string token = part.substr(0, len);
+            cout<<token<<'\n';
+            Token new_token(line, TokenType::Constant, token);
+            tokens.push_back(new_token);
+            code_stream.ignore(len);
+            continue;
+        }
     }
+    return tokens;
 }
 
+bool Lexer::is_key_word(const string &token) {
+    if(key_words.count(token)==0){
+        return false;
+    }
+    return true;
+}
 
-int main(int argc, char *argv[]) {
-    AutoMachine autoMachine(argv[1], LabelType::Delimiter);
+int main(int args,char* argv[]){
+    Lexer lexer(R"(C:\Users\jgss9\Desktop\VCompiler\lexer\lex-rule.txt)");
+    lexer.analyze(R"(C:\Users\jgss9\Desktop\VCompiler\lexer\test_code.txt)");
     return 0;
 }
