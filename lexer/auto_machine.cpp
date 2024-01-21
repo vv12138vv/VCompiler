@@ -122,6 +122,11 @@ void AutoMachine::make_nfa(int end) {
                                 has_edge.insert(letter);
                                 move[letter].insert(end);
                             }
+                        }else if(ch=='d'){
+                            for(char i='0';i<='9';i++){
+                                has_edge.insert(i);
+                                move[i].insert(end);
+                            }
                         } else {
                             has_edge.insert(ch);
                             move[ch].insert(end);
@@ -137,6 +142,11 @@ void AutoMachine::make_nfa(int end) {
                             for (const auto &letter: lower_case_letters) {
                                 has_edge.insert(letter);
                                 move[letter].insert(to_non_terminal);
+                            }
+                        }else if(ch=='d'){
+                            for(char i='0';i<='9';i++){
+                                has_edge.insert(i);
+                                move[i].insert(to_non_terminal);
                             }
                         } else {
                             has_edge.insert(ch);
@@ -157,8 +167,11 @@ void AutoMachine::make_nfa(int end) {
                         if (ch == 'd') {
                             for (char i = '0'; i <= '9'; i++) {
                                 has_edge.insert(i);
-                                move[ch].insert(end);
+                                move[i].insert(end);
                             }
+                        }else{
+                            has_edge.insert(ch);
+                            move[ch].insert(end);
                         }
                     } else if (rule.second.length() == 2) {
                         char ch = rule.second[0];
@@ -166,7 +179,7 @@ void AutoMachine::make_nfa(int end) {
                         if (ch == 'd') {
                             for (char i = '0'; i <= '9'; i++) {
                                 has_edge.insert(i);
-                                move[ch].insert(to_non_terminal);
+                                move[i].insert(to_non_terminal);
                             }
                         } else {
                             has_edge.insert(ch);
