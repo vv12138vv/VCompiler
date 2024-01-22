@@ -3,7 +3,7 @@
 #include <utility>
 
 //读取生成文件
-list<string> AutoMachine::read_rules(const std::string &rules_file_name, const std::string &label) {
+list<string> AutoMachine::read_rules(const string &rules_file_name, const std::string &label) {
     list<string> rules_string;
     try {
         ifstream rules_file(rules_file_name);
@@ -88,13 +88,6 @@ void AutoMachine::generate_rules(const list<string> &rules_string) {
     } catch (const exception &e) {
         cerr << e.what() << '\n';
     }
-//#ifdef DEBUG
-//    cout<<"=======================DEBUG:generate_rules()========================\n";
-//    for(const auto& rule:rules_){
-//        cout<<rule.first<<" :== "<<rule.second<<'\n';
-//    }
-//    cout<<'\n';
-//#endif
 }
 
 void AutoMachine::make_nfa(int end) {
@@ -519,7 +512,7 @@ int AutoMachine::analyze(const std::string &part) {//返回值是可接受的数
     int len=0;
     char ch=static_cast<char>(part[0]);
     int state= move_to(ch,0);
-    int pre_state=-1;
+    int pre_state=0;
     if(state==-1){
         return 0;
     }

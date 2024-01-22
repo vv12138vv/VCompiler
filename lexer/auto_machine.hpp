@@ -91,7 +91,6 @@ private:
     unordered_map<char,int> non_terminals_index_;
 
     unordered_set<int> nfa_end_states_;
-    unordered_set<int> dfa_end_states_;
     //nfa状态总数
     int nfa_state_count_;
     //dfa状态总数
@@ -104,6 +103,7 @@ private:
     DFA dfa_;
 
 public:
+    unordered_set<int> dfa_end_states_;
     static list<string> read_rules(const string &rules_file_name, const string &label);
 
     void generate_rules(const list<string> &rules_string);

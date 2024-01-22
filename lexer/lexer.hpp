@@ -46,6 +46,7 @@ public:
     list<Token> analyze(const string &file_name);
     static int find_word_end(const string& str,int i);
     void read_key_words(const string& file_name);
+    list<Token> other_analyze(const string& file_name);
 };
 
 

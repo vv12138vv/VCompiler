@@ -164,6 +164,125 @@ void Lexer::read_key_words(const string &file_name) {
     }
 }
 
+//list<Token> Lexer::other_analyze(const string &file_name) {
+//    list<Token> tokens;
+//    string code= preprocessing(file_name);
+//    int line=1;
+//    istringstream is(code);
+//    string error_msg;
+//    bool is_error=false;
+//    while(is.peek()!=EOF){
+//        if(is_error){
+//            break;
+//        }
+//        if(is.peek()=='\n'){
+//            line++;
+//        }
+//        string sub;
+//        is>>sub;
+//        int pos=0,len=1;
+//        while(pos<sub.length()){
+//            char ch=sub[pos+len-1];
+//            int state=auto_machines_[LabelType::Identifier]->move_to(ch,0);
+//            int last_state=-1;
+//            if(state!=-1){
+//                while(state!=-1){
+//                    len+=1;
+//                    ch=sub[pos+len-1];
+//                    last_state=state;
+//                    state=auto_machines_[LabelType::Identifier]->move_to(ch,state);
+//                }
+//                string current_identified=sub.substr(pos,len-1);
+//                if(!auto_machines_[LabelType::Identifier]->dfa_end_states_.count(last_state)){
+//                    error_msg="[Line num:"+to_string(line)+"]: "+"invalid identifier: "+current_identified+'\n';
+//                    is_error=true;
+//                    break;
+//                }
+//                if(is_key_word(current_identified)){
+//                    Token new_token(line,TokenType::Keyword,current_identified);
+//                    tokens.push_back(new_token);
+//                }else{
+//                    Token new_token(line,TokenType::Identifier,current_identified);
+//                    tokens.push_back(new_token);
+//                }
+//                pos=pos+len-1;
+//                len=1;
+//                continue;
+//            }else{
+//                state=auto_machines_[LabelType::Delimiter]->move_to(ch,0);
+//                if(state!=-1){
+//                    while(state!=-1){
+//                        len+=1;
+//                        ch=sub[pos+len-1];
+//                        last_state=state;
+//                        state=auto_machines_[LabelType::Delimiter]->move_to(ch,state);
+//                    }
+//                    string current_identified=sub.substr(pos,len-1);
+//                    if(!auto_machines_[LabelType::Delimiter]->dfa_end_states_.count(last_state)){
+//                        error_msg="[Line num:"+to_string(line)+"]: "+"invalid delimiter: "+current_identified+'\n';
+//                        is_error=true;
+//                        break;
+//                    }else{
+//                        Token new_token(line,TokenType::Delimiter,current_identified);
+//                        tokens.push_back(new_token);
+//                        pos=pos+len-1;
+//                        len=1;
+//                        break;
+//                    }
+//                }else{
+//                    state=auto_machines_[LabelType::Scientific]->move_to(ch,0);
+//                    if(state!=-1){
+//                        while(state!=-1){
+//                            len+=1;
+//                            ch=sub[pos+len-1];
+//                            last_state=state;
+//                            state=auto_machines_[LabelType::Scientific]->move_to(ch,state);
+//                        }
+//                        string current_identified=sub.substr(pos,len-1);
+//                        if(!auto_machines_[LabelType::Scientific]->dfa_end_states_.count(last_state)){
+//                            error_msg="[Line num:"+to_string(line)+"]: "+"invalid scientific: "+current_identified+'\n';
+//                            is_error=true;
+//                            break;
+//                        }
+//                        Token new_token(line,TokenType::Constant,current_identified);
+//                        tokens.push_back(new_token);
+//                        pos=pos+len-1;
+//                        len=1;
+//                        continue;
+//                    }else{
+//                        state=auto_machines_[LabelType::Operator]->move_to(ch,0);
+//                        if(state!=-1){
+//                            while(state!=-1){
+//                                len+=1;
+//                                ch=sub[pos+len-1];
+//                                last_state=state;
+//                                state=auto_machines_[LabelType::Operator]->move_to(ch,state);
+//                            }
+//                            string current_identified=sub.substr(pos,len-1);
+//                            if(!auto_machines_[LabelType::Operator]->dfa_end_states_.count(last_state)){
+//                                error_msg="[Line num:"+to_string(line)+"]: "+"invalid operator: "+current_identified+'\n';
+//                                is_error=true;
+//                                break;
+//                            }
+//                            Token new_token(line,TokenType::Operator,current_identified);
+//                            tokens.push_back(new_token);
+//                            pos=pos+len-1;
+//                            len=1;
+//                            continue;
+//                        }else{
+//                            error_msg="[Line num:"+to_string(line)+"]: "+"error tokens"+'\n';
+//                            is_error=true;
+//                            break;
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
+//    cout<<error_msg<<'\n';
+//    return tokens;
+//}
+
 string trim(const string& str){
     size_t first=str.find_first_not_of(' ');
     if(first==string::npos){
@@ -187,6 +306,5 @@ int main(int args, char *argv[]) {
     for (const auto &token: tokens) {
         cout << '(' << token.line_ << ',' << token_type_to_string[token.type_] << ',' << token.value_ << ")\n";
     }
-
     return 0;
 }
