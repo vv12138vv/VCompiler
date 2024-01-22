@@ -12,12 +12,17 @@ list<string> AutoMachine::read_rules(const std::string &rules_file_name, const s
         }
         string line;
         getline(rules_file, line);
+        int line_num=1;
         while (line != label) {//连续读取直至目标行
             getline(rules_file, line);
+            line_num+=1;
         }
         while (rules_file.peek() != EOF) {
             getline(rules_file, line);
+            line_num+=1;
             if (line.length() != 4 && line.length() != 5) {//判断是否符合三型文法
+                cerr<<"error line_num:"<<line_num<<'\n';
+                cerr<<"error line content"<<line<<'\n';
                 throw runtime_error("The format of rules are error");
             }
             rules_string.emplace_back(line);
@@ -27,15 +32,8 @@ list<string> AutoMachine::read_rules(const std::string &rules_file_name, const s
         }
         rules_file.close();
     } catch (const exception &e) {
-        cerr << e.what() << '\n';
+        cerr << e.what()<< '\n';
     }
-//#ifdef DEBUG
-//    cout<<"=======================DEBUG:read_rules()========================\n";
-//    for(const auto& rule_string:rules_string){
-//        cout<<rule_string<<'\n';
-//    }
-//    cout<<'\n';
-//#endif
     return rules_string;
 }
 
@@ -517,13 +515,13 @@ int AutoMachine::move_to(char ch, int cur_state) {
     return -1;
 }
 
-int AutoMachine::analyze(const std::string &part) {//返回值是可接受的数量
+int AutoMachine::analyze(const std::string &part) {//返回值是可接受的数量,若返回-1则说明有错
     int len=0;
     char ch=static_cast<char>(part[0]);
     int state= move_to(ch,0);
     int pre_state=-1;
     if(state==-1){
-        return len;
+        return 0;
     }
     while(state!=-1){
         len+=1;
