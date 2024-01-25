@@ -9,6 +9,7 @@
 #include<fstream>
 
 #include"rule.hpp"
+
 #endif
 
 using namespace std;
@@ -34,10 +35,21 @@ public:
     vector<Rule> rules_;
     unordered_set<Symbol,Symbol::Hasher> terminals_;
     unordered_set<Symbol,Symbol::Hasher> non_terminals_;
+    string rules_file_name_;
 
-
-    void generate_rules(const string& rules_file_name);
     Parser(const string& rules_file_name);
+    void init();
+    void generate_rules(const string& rules_file_name,bool verbos);
+    void generate_terminals_and_non_terminals(bool verbose);
+    void generate_firsts(bool verbose);
+
+    void set_can_to_nil(const Symbol& non_terminal);
+    bool update_non_terminal_first(const Symbol& non_terminal,const Symbol& sym);
+    void print_terminals();
+    void print_non_terminals();
+    void print_rules();
+    void print_firsts();
+    void print_to_nil();
 };
 
 
