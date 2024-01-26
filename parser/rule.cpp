@@ -3,6 +3,7 @@
 
 Rule::Rule(int index, Symbol &&left, vector<Symbol> &&right)
         : index_(index), left_(std::forward<Symbol>(left)), right_(std::forward<vector<Symbol>>(right)) {
+    content_= to_string(*this);
 }
 
 Rule Rule::to_rule(int index, const string &rule_string) {
@@ -35,7 +36,7 @@ Rule Rule::to_rule(int index, const string &rule_string) {
                     k += 1;
                 }
                 string content = right.substr(j + 1, k - j - 1);
-                if (content.length() == 1 && content[0] == Nil) {
+                if (content.length() == 1 && content == Nil) {
                     Symbol terminal_sym(content, SymbolType::Nil);
                     right_syms.push_back(std::move(terminal_sym));
                 } else {
@@ -75,7 +76,6 @@ Symbol Rule::get_right_first() const {
 
 Symbol::Symbol(string content, SymbolType symbol_type) : content_(std::move(content)),
                                                          symbol_type_(symbol_type) {
-    to_nil_ = false;
 }
 
 bool Symbol::operator==(const Symbol &that) const {

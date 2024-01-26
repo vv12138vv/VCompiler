@@ -7,43 +7,36 @@
 #include<vector>
 #include<list>
 #include<fstream>
+#include<unordered_map>
 
-#include"rule.hpp"
-
+#include"item.hpp"
 #endif
 
 using namespace std;
 
+const char FRONT_SEARCH='#';
 
-
-class Item: public Rule{
-public:
-    int pointer;
-    unordered_set<Symbol,Symbol::Hasher> fronts_;
-    bool is_reducible_;
-    bool is_movable_;
-};
-
-class ItemSet{
-public:
-    int state;
-    unordered_set<Item> items_;
-};
 
 class Parser{
 public:
     vector<Rule> rules_;
+//    unordered_set<Symbol,Symbol::Hasher> terminals_;
+//    unordered_set<Symbol,Symbol::Hasher> non_terminals_;
     unordered_set<Symbol,Symbol::Hasher> terminals_;
-    unordered_set<Symbol,Symbol::Hasher> non_terminals_;
+    unordered_map<Symbol,unordered_set<Symbol,Symbol::Hasher>,Symbol::Hasher> non_terminals_;
     string rules_file_name_;
+    list<ItemSet> item_sets_;
 
     Parser(const string& rules_file_name);
     void init();
+
     void generate_rules(const string& rules_file_name,bool verbos);
     void generate_terminals_and_non_terminals(bool verbose);
     void generate_firsts(bool verbose);
+    void generate_LR1(bool verbose);
 
-    void set_can_to_nil(const Symbol& non_terminal);
+    bool can_to_nil(const Symbol& non_terminal);
+    bool update_first_set(const Symbol& non_terminal,const Symbol& sym);
     bool update_non_terminal_first(const Symbol& non_terminal,const Symbol& sym);
     void print_terminals();
     void print_non_terminals();

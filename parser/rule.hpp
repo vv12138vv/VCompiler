@@ -16,7 +16,7 @@ const char terminal_left_delimiter = '\'';
 const char terminal_right_delimiter = '\'';
 const char non_terminal_left_delimiter = '\"';
 const char non_terminal_right_delimiter = '\"';
-const char Nil = '@';
+const string Nil = "@";
 
 enum class SymbolType {
     Ternimal,
@@ -32,35 +32,34 @@ public:
             return hash<string>()(symbol.content_);
         }
     };
-
 public:
     string content_;
     SymbolType symbol_type_;
-    bool to_nil_;
-    //first集
-    unordered_set<Symbol,Symbol::Hasher> first_;
 
+    Symbol()=delete;
     Symbol(string content, SymbolType symbol_type);
-
     Symbol(const Symbol &that)=default;
 
     Symbol &operator=(const Symbol &that) = default;
     bool operator==(const Symbol &that) const;
+
 };
+const Symbol NIL(Nil,SymbolType::Nil);
 
 class Rule {
 public:
     int index_;
+    string content_;
     Symbol left_;
     vector<Symbol> right_;
 
-    static Rule to_rule(int index, const string &rule_string);
-
+    Rule()=delete;
     Rule(int index, Symbol &&left, vector<Symbol> &&right);
+    Rule(const Rule& that)=default;
+    Rule& operator=(const Rule& that)=default;
 
+    static Rule to_rule(int index, const string &rule_string);
     Symbol get_right_first() const;
-
     static string to_string(const Rule &rule);
-
     void print() const;
 };
