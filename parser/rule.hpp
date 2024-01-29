@@ -17,12 +17,15 @@ const char terminal_right_delimiter = '\'';
 const char non_terminal_left_delimiter = '\"';
 const char non_terminal_right_delimiter = '\"';
 const string Nil = "@";
+const string Front_Search="#";
+const string Item_delimieter="\xA1\xA4";
 
 enum class SymbolType {
-    Ternimal,
+    Terminal,
     Non_Terminal,
     Nil,
     Front,
+    Error
 };
 
 class Symbol {
@@ -44,7 +47,10 @@ public:
     bool operator==(const Symbol &that) const;
 
 };
+
 const Symbol NIL(Nil,SymbolType::Nil);
+const Symbol FRONT_SEARCH(Front_Search,SymbolType::Front);
+const Symbol ERROR("",SymbolType::Error);
 
 class Rule {
 public:

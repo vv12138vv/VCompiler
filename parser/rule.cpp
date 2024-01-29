@@ -3,7 +3,7 @@
 
 Rule::Rule(int index, Symbol &&left, vector<Symbol> &&right)
         : index_(index), left_(std::forward<Symbol>(left)), right_(std::forward<vector<Symbol>>(right)) {
-    content_= to_string(*this);
+    content_ = to_string(*this);
 }
 
 Rule Rule::to_rule(int index, const string &rule_string) {
@@ -40,7 +40,7 @@ Rule Rule::to_rule(int index, const string &rule_string) {
                     Symbol terminal_sym(content, SymbolType::Nil);
                     right_syms.push_back(std::move(terminal_sym));
                 } else {
-                    Symbol terminal_sym(content, SymbolType::Ternimal);
+                    Symbol terminal_sym(content, SymbolType::Terminal);
                     right_syms.push_back(std::move(terminal_sym));
                 }
                 j = k + 1;
@@ -79,7 +79,7 @@ Symbol::Symbol(string content, SymbolType symbol_type) : content_(std::move(cont
 }
 
 bool Symbol::operator==(const Symbol &that) const {
-    return content_ == that.content_;
+    return content_ == that.content_ && symbol_type_ == that.symbol_type_;
 }
 
 
