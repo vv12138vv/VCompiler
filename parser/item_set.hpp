@@ -30,6 +30,7 @@ public:
     bool insert_fronts(const unordered_set<Symbol, Symbol::Hasher>& syms);
     Symbol next_sym() const;
     bool is_reducible() const;
+    bool is_movable() const;
     static Item move_pointer(const Item& item);
     static string to_string(const Item& item);
     static bool can_trans(const Item& item);

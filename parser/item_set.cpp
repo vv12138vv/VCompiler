@@ -97,10 +97,31 @@ Item Item::move_pointer(const Item &item) {
 }
 
 bool Item::is_reducible() const {
-    if(pointer_==right_.size()){
-        return true;
+    try{
+        if(pointer_> right_.size()){
+            throw Exception("Pointer can not larger than right","");
+        }
+        if(pointer_==right_.size()){
+            return true;
+        }
+    }catch(const Exception& e){
+        cerr<<e.what()<<'\n';
     }
     return false;
+}
+
+bool Item::is_movable() const {
+    try{
+        if(pointer_> right_.size()){
+            throw Exception("Pointer can not larger than right","");
+        }
+        if(pointer_==right_.size()){
+            return false;
+        }
+    }catch(const Exception& e){
+        cerr<<e.what()<<'\n';
+    }
+    return next_sym().symbol_type_==SymbolType::Terminal;
 }
 
 unordered_set<Symbol, Symbol::Hasher> ItemSet::get_firsts(const Rule &rule, int start, int end) {
