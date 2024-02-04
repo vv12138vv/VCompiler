@@ -12,12 +12,12 @@
 #include<queue>
 #include<iomanip>
 
+#include"../common/exception.hpp"
+
 #endif
 using namespace std;
 //using
 
-//表示空
-const char Nil = '@';
 class DFAState {
 public:
     bool is_existed_{};
@@ -45,7 +45,7 @@ public:
 
 typedef unordered_map<int, DFAState> DFA;
 typedef unordered_map<int, unordered_map<char, unordered_set<int>>> NFA;
-typedef pair<string, string> Rule;
+typedef pair<string, string> Rule_;
 
 
 enum class LabelType {
@@ -80,7 +80,7 @@ private:
     //自动机类型
     LabelType label_type_;
     //规则
-    list<Rule> rules_;
+    list<Rule_> rules_;
     //字母表
     unordered_set<char> alphabets_;
     //终结符集合

@@ -55,12 +55,12 @@ string Item::to_string(const Item &item) {
     content = item.left_.content_ + "->";
     for(int i=0;i<item.right_.size();i++){
         if(i==item.pointer_){
-            content+=Item_delimieter;
+            content+=Item_Delimieter;
         }
         content+=item.right_[i].content_;
     }
     if(item.pointer_==item.right_.size()){
-        content+=Item_delimieter;
+        content+=Item_Delimieter;
     }
     content+=",{";
     for(const auto& sym:item.fronts_){

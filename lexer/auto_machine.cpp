@@ -82,7 +82,7 @@ void AutoMachine::generate_rules(const list<string> &rules_string) {
             }
             string left = rule_string.substr(0, index);
             string right = rule_string.substr(index + 2, rule_string.length() - index - 2);
-            Rule rule{left, right};
+            Rule_ rule{left, right};
             rules_.emplace_back(rule);
         }
     } catch (const exception &e) {

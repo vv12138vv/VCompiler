@@ -6,7 +6,7 @@
 #include<unordered_set>
 #include<vector>
 #include<list>
-#include"exception.hpp"
+#include"../common/exception.hpp"
 
 #endif
 
@@ -16,9 +16,9 @@ const char terminal_left_delimiter = '\'';
 const char terminal_right_delimiter = '\'';
 const char non_terminal_left_delimiter = '\"';
 const char non_terminal_right_delimiter = '\"';
-const string Nil = "@";
+const string Nil="@";
 const string Front_Search="#";
-const string Item_delimieter="\xA1\xA4";
+const string Item_Delimieter="\xA1\xA4";
 
 enum class SymbolType {
     Terminal,

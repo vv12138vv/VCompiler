@@ -1,33 +1,16 @@
 #ifndef LEXER_HPP
 #define LEXER_HPP
 
-#include "auto_machine.hpp"
+
 #include<memory>
+
+
+#include "auto_machine.hpp"
+#include"token.hpp"
 
 #endif
 
-enum class TokenType {
-    Constant,
-    Delimiter,
-    Operator,
-    Keyword,
-    Identifier
-};
-unordered_map<TokenType,string> token_type_to_string={
-        {TokenType::Constant,"constant"},
-        {TokenType::Delimiter,"delimiter"},
-        {TokenType::Operator,"operator"},
-        {TokenType::Keyword,"keyword"},
-        {TokenType::Identifier,"identifier"}
-};
 
-class Token {
-public:
-    size_t line_;
-    TokenType type_;
-    string value_;
-    Token(size_t line, TokenType type, string value) : line_(line), type_(type), value_(std::move(value)) {}
-};
 
 
 
@@ -47,6 +30,7 @@ public:
     static int find_word_end(const string& str,int i);
     void read_key_words(const string& file_name);
     list<Token> other_analyze(const string& file_name);
+    static void save_to(const string& file_name,const list<Token>& tokens);
 };
 
 

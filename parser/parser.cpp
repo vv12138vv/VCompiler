@@ -11,7 +11,6 @@ void Parser::init() {
     generate_DFA(true);
     vector<int> end_item_index = std::move(find_acc_state());
     generate_LR1(true);
-
 }
 
 void Parser::generate_rules(const string &rules_file_name, bool verbose = false) {
@@ -31,7 +30,6 @@ void Parser::generate_rules(const string &rules_file_name, bool verbose = false)
         }
     } catch (const exception &e) {
         cerr << e.what() << '\n';
-        terminate();
     }
 }
 
@@ -338,85 +336,211 @@ vector<int> Parser::find_acc_state() {
     return res;
 }
 
-void Parser::generate_LR1(bool verbose= false) {
+void Parser::generate_LR1(bool verbose = false) {
     //初始化goto表与action表
-    for(const auto& item_set:item_sets_){
-        unordered_map<Symbol,Element,Symbol::Hasher> action_content;
-        for(const auto& terminal:terminals_){
-            action_content.insert({terminal,Element(ElementType::Default,-1)});
+    for (const auto &item_set: item_sets_) {
+        unordered_map<Symbol, Element, Symbol::Hasher> action_content;
+        for (const auto &terminal: terminals_) {
+            action_content.insert({terminal, Element(ElementType::Error, -1)});
         }
-        action_.insert({item_set.state_,std::move(action_content)});
-        unordered_map<Symbol,Element,Symbol::Hasher> goto_content;
-        for(const auto& non_terminal:non_terminals_){
-            goto_content.insert({non_terminal.first,Element(ElementType::Default,-1)});
+        action_.insert({item_set.state_, std::move(action_content)});
+        unordered_map<Symbol, Element, Symbol::Hasher> goto_content;
+        for (const auto &non_terminal: non_terminals_) {
+            goto_content.insert({non_terminal.first, Element(ElementType::Error, -1)});
         }
-        goto_.insert({item_set.state_,std::move(goto_content)});
+        goto_.insert({item_set.state_, std::move(goto_content)});
     }
-    for(auto& item_set:item_sets_){
-        for(auto& item:item_set.items_){
-            if(item.is_movable()){//移进项目
-                Symbol trans_sym=item.next_sym();
-                int to_state=transfer_[item_set.state_][trans_sym];
-                action_[item_set.state_][trans_sym]=Element(ElementType::Move,to_state);
-            }else if(item.is_reducible()){//规约项目
-                for(const auto& front:item.fronts_){
-                    action_[item_set.state_][front]=Element(ElementType::Reduce,item.index_);
+    for (auto &item_set: item_sets_) {
+        for (auto &item: item_set.items_) {
+            if (item.is_movable()) {//移进项目
+                Symbol trans_sym = item.next_sym();
+                int to_state = transfer_[item_set.state_][trans_sym];
+                action_[item_set.state_][trans_sym] = Element(ElementType::Move, to_state);
+            } else if (item.is_reducible()) {//规约项目
+                for (const auto &front: item.fronts_) {
+                    action_[item_set.state_][front] = Element(ElementType::Reduce, item.index_);
                 }
-            }else{
-                Symbol trans_sym=item.next_sym();
-                try{
-                    if(trans_sym.symbol_type_!=SymbolType::Non_Terminal){
-                        throw Exception("Goto trans symbol must be non_terminal","");
+            } else {
+                Symbol trans_sym = item.next_sym();
+                try {
+                    if (trans_sym.symbol_type_ != SymbolType::Non_Terminal) {
+                        throw Exception("Goto trans symbol must be non_terminal", "");
                     }
-                    int to=transfer_[item_set.state_][trans_sym];
-                    goto_[item_set.state_][trans_sym]=Element(ElementType::Goto,to);
-                }catch (const Exception& e){
-                    cerr<<e.what()<<'\n';
+                    int to = transfer_[item_set.state_][trans_sym];
+                    goto_[item_set.state_][trans_sym] = Element(ElementType::Goto, to);
+                } catch (const Exception &e) {
+                    cerr << e.what() << '\n';
                 }
             }
         }
     }
-    vector<int> acc_state=find_acc_state();
-    for(int state:acc_state){
-        action_[state][FRONT_SEARCH]=Element(ElementType::Accept,-1);
+    vector<int> acc_state = find_acc_state();
+    for (int state: acc_state) {
+        action_[state][FRONT_SEARCH] = Element(ElementType::Accept, -1);
     }
-    if(verbose){
+    if (verbose) {
         print_goto_and_action();
     }
 }
 
 void Parser::print_goto_and_action() {
     cout << "=========================action and goto=========================" << '\n';
-    cout<<"row count: "<<action_.size()<<'\n';
+    cout << "row count: " << action_.size() << '\n';
     string col_head;
-    col_head+="state\t";
-    for(const auto& terminal:terminals_){
-        col_head+=(terminal.content_+'\t');
+    col_head += "state\t";
+    for (const auto &terminal: terminals_) {
+        col_head += (terminal.content_ + '\t');
     }
-    col_head+=Front_Search+'\t';
-    for(const auto& non_terminal:non_terminals_){
-        if(non_terminal.first.content_.back()=='\''){
+    col_head += Front_Search + '\t';
+    for (const auto &non_terminal: non_terminals_) {
+        if (non_terminal.first.content_.back() == '\'') {
             continue;
         }
-        col_head+=(non_terminal.first.content_+'\t');
+        col_head += (non_terminal.first.content_ + '\t');
     }
-    cout<<col_head<<'\n';
-    for(int i=0;i<action_.size();i++){
+    cout << col_head << '\n';
+    for (int i = 0; i < action_.size(); i++) {
         string row_content;
-        row_content+= to_string(i)+'\t';
-        for(const auto& terminal:terminals_){
-            row_content+=Element::to_string(action_[i][terminal])+'\t';
+        row_content += to_string(i) + '\t';
+        for (const auto &terminal: terminals_) {
+            row_content += Element::to_string(action_[i][terminal]) + '\t';
         }
-        row_content+=Element::to_string(action_[i][FRONT_SEARCH])+'\t';
-        for(const auto& non_terminal:non_terminals_){
-            if(non_terminal.first.content_.back()=='\''){
+        row_content += Element::to_string(action_[i][FRONT_SEARCH]) + '\t';
+        for (const auto &non_terminal: non_terminals_) {
+            if (non_terminal.first.content_.back() == '\'') {
                 continue;
             }
-            row_content+=Element::to_string(goto_[i][non_terminal.first])+'\t';
+            row_content += Element::to_string(goto_[i][non_terminal.first]) + '\t';
         }
-        cout<<row_content<<'\n';
+        cout << row_content << '\n';
     }
-    cout<<'\n';
+    cout << '\n';
+}
+
+void Parser::analyze(const list<Symbol> &input,bool verbose= false) {//todo lr1分析
+    //初始化输入串
+    try {
+        list<Symbol> str = input;
+        str.push_back(FRONT_SEARCH);
+        //初始化状态栈与符号栈,为了方便展示内容，不使用std::stack,使用std::list，其中尾部为栈顶，头部为栈底
+        list<int> state_stack;
+        list<Symbol> symbol_stack;
+        state_stack.push_back(0);
+        symbol_stack.push_back(FRONT_SEARCH);
+        int step = 0;
+        int pos = 0;
+        bool is_acc = false;
+        bool is_error=false;
+        while (true) {
+            int cur_state = state_stack.back();
+            Symbol top_sym = str.front();
+            Element element;
+            if (top_sym.symbol_type_ == SymbolType::Non_Terminal) {
+                element = action_[cur_state][top_sym];
+            } else if (top_sym.symbol_type_ == SymbolType::Terminal) {
+                element = goto_[cur_state][top_sym];
+            }
+            switch (element.element_type_) {
+                case ElementType::Move: {
+                    state_stack.push_back(element.index_);
+                    symbol_stack.push_back(top_sym);
+                    str.pop_front();
+                    break;
+                }
+                case ElementType::Reduce: {
+                    const Rule &reduce_rule = rules_[element.index_];
+                    int pop_size = static_cast<int>(reduce_rule.right_.size());
+                    for (int i = 0; i < pop_size; i++) {
+                        state_stack.pop_back();
+                        symbol_stack.pop_back();
+                    }
+                    //为了统一处理，将规约的左部放入符号串头部
+                    str.push_front(reduce_rule.left_);
+                    break;
+                }
+                case ElementType::Accept: {
+                    if (str.size() != 1) {
+                        throw Exception("Acc Error","");
+                    }
+                    is_acc = true;
+                    break;
+                }
+                case ElementType::Goto: {
+                    symbol_stack.push_back(top_sym);
+                    state_stack.push_back(element.index_);
+                    str.pop_front();
+                    break;
+                }
+                case ElementType::Error:
+                    is_error=true;
+                    break;
+            }
+            step += 1;
+            if(verbose){
+                [&](){
+                    string content;
+                    content+=to_string(step)+'\t';
+                    for(const auto& state:state_stack){
+                        content+= to_string(state);
+                    }
+                    content+='\t';
+                    for(const auto& sym:symbol_stack){
+                        content+=sym.content_;
+                    }
+                    content+='\t';
+                    for(const auto& sym:str){
+                        content+=sym.content_;
+                    }
+                    content+='\t';
+                    content+=Element::to_string(element);
+                    cout<<content<<'\n';
+                };
+            }
+            if(is_acc||is_error){
+                break;
+            }
+        }
+    } catch (const Exception &e) {
+        cerr<<e.what()<<'\n';
+    }
+}
+
+list<Token> Parser::load_tokens(const string &token_file_name) {
+    list<Token> tokens;
+    try{
+        ifstream token_file(token_file_name);
+        if(!token_file.is_open()){
+            throw Exception("Can not open the file: ",token_file_name);
+        }
+        string line;
+        getline(token_file,line);
+        while(getline(token_file,line)){
+            tokens.emplace_back(Token::from_string(line));
+        }
+    }catch (const Exception& e){
+        cerr<<e.what()<<'\n';
+    }
+    return tokens;
+}
+
+list<Symbol> Parser::tokens_to_syms(const list<Token> &tokens) {
+    list<Symbol> syms;
+    for(const Token& token:tokens){
+        string content;
+        SymbolType symbol_type;
+        switch (token.type_) {
+            case TokenType::Identifier:
+                break;
+            case TokenType::Keyword:
+                break;
+            case TokenType::Operator:
+                break;
+            case TokenType::Constant:
+                break;
+            case TokenType::Delimiter:
+                break;
+        }
+    }
 }
 
 Element::Element(ElementType element_type, int index) : element_type_(element_type), index_(index) {
@@ -424,27 +548,27 @@ Element::Element(ElementType element_type, int index) : element_type_(element_ty
 }
 
 Element::Element() {
-    element_type_ = ElementType::Default;
+    element_type_ = ElementType::Error;
     index_ = -1;
 }
 
 string Element::to_string(const Element &element) {
     string content;
     switch (element.element_type_) {
-        case ElementType::Default:
-            content+="\\";
+        case ElementType::Error:
+            content += "\\";
             break;
         case ElementType::Accept:
-            content+="acc";
+            content += "acc";
             break;
         case ElementType::Goto:
-            content+=std::to_string(element.index_);
+            content += std::to_string(element.index_);
             break;
         case ElementType::Move:
-            content+=('S'+std::to_string(element.index_));
+            content += ('S' + std::to_string(element.index_));
             break;
         case ElementType::Reduce:
-            content+=('r'+std::to_string(element.index_));
+            content += ('r' + std::to_string(element.index_));
             break;
     }
     return content;

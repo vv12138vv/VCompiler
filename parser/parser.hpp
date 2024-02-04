@@ -8,15 +8,18 @@
 #include<list>
 #include<fstream>
 #include<unordered_map>
+#include<stack>
 
 #include"item_set.hpp"
+#include"../lexer/token.hpp"
+
 #endif
 
 using namespace std;
 
 
 enum class ElementType{
-    Default,
+    Error,
     Accept,
     Goto,
     Move,
@@ -54,11 +57,13 @@ public:
     void generate_firsts(bool verbose);
     void generate_DFA(bool verbose);
     void generate_LR1(bool verbose);
-
+    list<Token> load_tokens(const string& token_file_name);
+    void analyze(const list<Symbol>& input,bool verbose);
     bool can_to_nil(const Symbol& non_terminal);
     bool update_first_set(const Symbol& non_terminal,const Symbol& sym);
     int is_existed(const ItemSet& item_set);
     vector<int> find_acc_state();
+    list<Symbol> tokens_to_syms(const list<Token>& tokens);
     void print_terminals();
     void print_non_terminals();
     void print_rules();

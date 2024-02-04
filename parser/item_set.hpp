@@ -49,7 +49,7 @@ public:
     ItemSet(int state,const Parser& parser);
     ItemSet(const ItemSet& that)=default;
     //获取指定范围内的first集合
-    unordered_set<Symbol,Symbol::Hasher> get_firsts(const Rule& rule,int start,int end);
+    unordered_set<Symbol,Symbol::Hasher> get_firsts(const Rule& rule, int start, int end);
 
     bool operator==(const ItemSet& that) const;
 
