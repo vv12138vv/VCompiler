@@ -198,12 +198,6 @@ void AutoMachine::make_nfa(int end) {
                 move[alphabet] = unordered_set<int>();
             }
         }
-//        for (char alphabet: alphabets_) {
-//            vector<int> v = move[alphabet];
-//            sort(v.begin(), v.end());
-//            v.erase(unique(v.begin(), v.end()), v.end());
-//            move[alphabet] = v;
-//        }
         nfa_[non_terminals_index_[non_terminal]] = move;
     }
     unordered_map<char, unordered_set<int>> end_move;

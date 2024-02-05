@@ -7,7 +7,6 @@
 #include<vector>
 #include<list>
 #include"../common/exception.hpp"
-
 #endif
 
 using namespace std;
@@ -38,7 +37,6 @@ public:
 public:
     string content_;
     SymbolType symbol_type_;
-
     Symbol()=delete;
     Symbol(string content, SymbolType symbol_type);
     Symbol(const Symbol &that)=default;

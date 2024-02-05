@@ -417,7 +417,7 @@ void Parser::print_goto_and_action() {
     cout << '\n';
 }
 
-void Parser::analyze(const list<Symbol> &input,bool verbose= false) {//todo lr1分析
+void Parser::analyze(const list<Symbol> &input, bool verbose = false) {//todo lr1分析
     //初始化输入串
     try {
         list<Symbol> str = input;
@@ -430,7 +430,7 @@ void Parser::analyze(const list<Symbol> &input,bool verbose= false) {//todo lr1�
         int step = 0;
         int pos = 0;
         bool is_acc = false;
-        bool is_error=false;
+        bool is_error = false;
         while (true) {
             int cur_state = state_stack.back();
             Symbol top_sym = str.front();
@@ -460,7 +460,7 @@ void Parser::analyze(const list<Symbol> &input,bool verbose= false) {//todo lr1�
                 }
                 case ElementType::Accept: {
                     if (str.size() != 1) {
-                        throw Exception("Acc Error","");
+                        throw Exception("Acc Error", "");
                     }
                     is_acc = true;
                     break;
@@ -472,75 +472,91 @@ void Parser::analyze(const list<Symbol> &input,bool verbose= false) {//todo lr1�
                     break;
                 }
                 case ElementType::Error:
-                    is_error=true;
+                    is_error = true;
                     break;
             }
             step += 1;
-            if(verbose){
-                [&](){
+            if (verbose) {
+                [&]() {
                     string content;
-                    content+=to_string(step)+'\t';
-                    for(const auto& state:state_stack){
-                        content+= to_string(state);
+                    content += to_string(step) + '\t';
+                    for (const auto &state: state_stack) {
+                        content += to_string(state);
                     }
-                    content+='\t';
-                    for(const auto& sym:symbol_stack){
-                        content+=sym.content_;
+                    content += '\t';
+                    for (const auto &sym: symbol_stack) {
+                        content += sym.content_;
                     }
-                    content+='\t';
-                    for(const auto& sym:str){
-                        content+=sym.content_;
+                    content += '\t';
+                    for (const auto &sym: str) {
+                        content += sym.content_;
                     }
-                    content+='\t';
-                    content+=Element::to_string(element);
-                    cout<<content<<'\n';
+                    content += '\t';
+                    content += Element::to_string(element);
+                    cout << content << '\n';
                 };
             }
-            if(is_acc||is_error){
+            if (is_acc || is_error) {
                 break;
             }
         }
     } catch (const Exception &e) {
-        cerr<<e.what()<<'\n';
+        cerr << e.what() << '\n';
     }
 }
 
 list<Token> Parser::load_tokens(const string &token_file_name) {
     list<Token> tokens;
-    try{
+    try {
         ifstream token_file(token_file_name);
-        if(!token_file.is_open()){
-            throw Exception("Can not open the file: ",token_file_name);
+        if (!token_file.is_open()) {
+            throw Exception("Can not open the file: ", token_file_name);
         }
         string line;
-        getline(token_file,line);
-        while(getline(token_file,line)){
+        getline(token_file, line);
+        while (getline(token_file, line)) {
             tokens.emplace_back(Token::from_string(line));
         }
-    }catch (const Exception& e){
-        cerr<<e.what()<<'\n';
+    } catch (const Exception &e) {
+        cerr << e.what() << '\n';
     }
     return tokens;
 }
 
-list<Symbol> Parser::tokens_to_syms(const list<Token> &tokens) {
+tuple<list<Symbol>,unordered_map<Symbol*,Token>> Parser::tokens_to_syms(const list<Token> &tokens) {
     list<Symbol> syms;
-    for(const Token& token:tokens){
+    unordered_map<Symbol*,Token> sym_token_mp;
+    for (const Token &token: tokens) {
         string content;
         SymbolType symbol_type;
         switch (token.type_) {
             case TokenType::Identifier:
+                symbol_type = SymbolType::Non_Terminal;
                 break;
             case TokenType::Keyword:
+                symbol_type = SymbolType::Non_Terminal;
                 break;
             case TokenType::Operator:
+                symbol_type = SymbolType::Terminal;
                 break;
             case TokenType::Constant:
+                symbol_type = SymbolType::Non_Terminal;
                 break;
             case TokenType::Delimiter:
+                symbol_type = SymbolType::Terminal;
                 break;
         }
+        content = token.value_;
+        syms.push_back(Symbol(content, symbol_type));
+        sym_token_mp.insert({&syms.back(),token});
     }
+    return {syms,sym_token_mp};
+}
+
+void Parser::call(const string &token_file_name) {
+    list<Token> tokens= std::move(load_tokens(token_file_name));
+    auto [syms,sym_token_mp]= std::move(tokens_to_syms(tokens));
+    analyze(syms,true);
 }
 
 Element::Element(ElementType element_type, int index) : element_type_(element_type), index_(index) {
@@ -575,7 +591,8 @@ string Element::to_string(const Element &element) {
 }
 
 int main(int argc, char *argv[]) {
-    Parser parser(R"(C:\Users\jgss9\Desktop\VCompiler\parser\test\test_6.txt)");
+    Parser parser(R"(C:\Users\jgss9\Desktop\VCompiler\parser\rules\grammar_rule.txt)");
+    parser.call(R"(C:\Users\jgss9\Desktop\VCompiler\cmake-build-debug\bin\tokens.txt)");
     return 0;
 }
 

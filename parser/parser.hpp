@@ -9,6 +9,7 @@
 #include<fstream>
 #include<unordered_map>
 #include<stack>
+#include<tuple>
 
 #include"item_set.hpp"
 #include"../lexer/token.hpp"
@@ -59,11 +60,12 @@ public:
     void generate_LR1(bool verbose);
     list<Token> load_tokens(const string& token_file_name);
     void analyze(const list<Symbol>& input,bool verbose);
+    void call(const string& token_file_name);
     bool can_to_nil(const Symbol& non_terminal);
     bool update_first_set(const Symbol& non_terminal,const Symbol& sym);
     int is_existed(const ItemSet& item_set);
     vector<int> find_acc_state();
-    list<Symbol> tokens_to_syms(const list<Token>& tokens);
+    tuple<list<Symbol>,unordered_map<Symbol*,Token>> tokens_to_syms(const list<Token>& tokens);
     void print_terminals();
     void print_non_terminals();
     void print_rules();

@@ -176,7 +176,7 @@ void Lexer::save_to(const string &file_name, const list<Token> &tokens) {
         }
         output << "tokens_count:" << tokens.size() << '\n';
         for (const auto &token: tokens) {
-            output << '(' << token.line_ << ',' << token_type_to_string[token.type_] << ',' << token.value_ << ")\n";
+            output << '(' << token.line_ << ',' << Token::token_type_to_string[token.type_] << ',' << token.value_ << ")\n";
         }
         output.close();
     } catch (const Exception &e) {

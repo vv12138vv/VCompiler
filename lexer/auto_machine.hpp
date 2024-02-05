@@ -18,6 +18,7 @@
 using namespace std;
 //using
 
+const char Nil='@';
 class DFAState {
 public:
     bool is_existed_{};
