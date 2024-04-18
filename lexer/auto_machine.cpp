@@ -492,6 +492,7 @@ void AutoMachine::print_content() {
     cout<<'\n';
 }
 
+//返回可转移到的下一状态
 int AutoMachine::move_to(char ch, int cur_state) {
     if(!terminals_.count(ch)){
         return -1;

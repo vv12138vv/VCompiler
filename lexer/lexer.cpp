@@ -43,10 +43,12 @@ string Lexer::preprocessing(const string &file_name) {
 Lexer::Lexer(const string &rules_file_name, const string &key_words_file_name) : rules_file_name_(rules_file_name),
                                                                                  key_words_file_name(
                                                                                          key_words_file_name) {
+    //添加四种自动机
     auto_machines_.insert({LabelType::Operator, make_unique<AutoMachine>(rules_file_name, LabelType::Operator)});
     auto_machines_.insert({LabelType::Delimiter, make_unique<AutoMachine>(rules_file_name, LabelType::Delimiter)});
     auto_machines_.insert({LabelType::Identifier, make_unique<AutoMachine>(rules_file_name, LabelType::Identifier)});
     auto_machines_.insert({LabelType::Scientific, make_unique<AutoMachine>(rules_file_name, LabelType::Scientific)});
+    //读取关键字
     read_key_words(key_words_file_name);
 }
 
@@ -69,6 +71,7 @@ list<Token> Lexer::analyze(const std::string &file_name) {//todo 这里可能有
             continue;
         }
         int j = find_word_end(code, i);
+        //切分出一个可能的token
         string part = code.substr(i, j - i + 1);
         int len = -1;
         len = auto_machines_[LabelType::Identifier]->analyze(part);

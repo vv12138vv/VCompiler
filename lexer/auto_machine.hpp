@@ -16,7 +16,6 @@
 
 #endif
 using namespace std;
-//using
 
 const char Nil='@';
 class DFAState {

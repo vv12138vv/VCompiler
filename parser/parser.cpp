@@ -5,6 +5,7 @@ Parser::Parser(const string &rules_file_name) : rules_file_name_(rules_file_name
 }
 
 void Parser::init() {
+    
     generate_rules(rules_file_name_, true);
     generate_terminals_and_non_terminals(true);
     generate_firsts(true);
@@ -20,9 +21,12 @@ void Parser::generate_rules(const string &rules_file_name, bool verbose = false)
             throw runtime_error("Can not open the file!");
         }
         string line;
+        int i=0;
         while (getline(rules_file, line)) {
             Rule rule = Rule::to_rule(static_cast<int>(rules_.size()), line);
             rules_.push_back(std::move(rule));
+            i+=1;
+            cout<<line<<'\n';
         }
         rules_file.close();
         if (verbose) {
@@ -591,8 +595,8 @@ string Element::to_string(const Element &element) {
 }
 
 int main(int argc, char *argv[]) {
-    Parser parser(R"(C:\Users\jgss9\Desktop\VCompiler\parser\rules\grammar_rule.txt)");
-    parser.call(R"(C:\Users\jgss9\Desktop\VCompiler\cmake-build-debug\bin\tokens.txt)");
+    Parser parser(R"(C:\Users\jgss9\Desktop\VCompiler\parser\rules\grammar_rules.txt)");
+//    parser.call(R"(C:\Users\jgss9\Desktop\VCompiler\cmake-build-debug\bin\tokens.txt)");
     return 0;
 }
 

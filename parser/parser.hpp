@@ -50,7 +50,7 @@ public:
     unordered_map<int,unordered_map<Symbol,Element,Symbol::Hasher>> action_;
     unordered_map<int,unordered_map<Symbol,Element,Symbol::Hasher>> goto_;
 
-    Parser(const string& rules_file_name);
+    explicit Parser(const string& rules_file_name);
     void init();
 
     void generate_rules(const string& rules_file_name,bool verbose);
