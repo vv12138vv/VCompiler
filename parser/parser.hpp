@@ -18,7 +18,7 @@
 
 using namespace std;
 
-
+//LR表中的元素类型
 enum class ElementType{
     Error,
     Accept,
@@ -27,14 +27,15 @@ enum class ElementType{
     Reduce
 };
 
+//LR表中的元素
 class Element{
 public:
     ElementType element_type_;
-    int index_;
+    int index_;//对应的转移状态 / 调用的产生式序号
 public:
     Element();
     Element(ElementType element_type,int index);
-    static string to_string(const Element& elemen);
+    static string to_string(const Element& element);
 };
 
 
@@ -43,11 +44,16 @@ class Parser{
 public:
     vector<Rule> rules_;
     unordered_set<Symbol,Symbol::Hasher> terminals_;
+    //存储了非终结符及其first集
     unordered_map<Symbol,unordered_set<Symbol,Symbol::Hasher>,Symbol::Hasher> non_terminals_;
     string rules_file_name_;
+
     vector<ItemSet> item_sets_;
+    //状态转移表
     unordered_map<int,unordered_map<Symbol,int,Symbol::Hasher>> transfer_;
+    //action表
     unordered_map<int,unordered_map<Symbol,Element,Symbol::Hasher>> action_;
+    //goto表
     unordered_map<int,unordered_map<Symbol,Element,Symbol::Hasher>> goto_;
 
     explicit Parser(const string& rules_file_name);

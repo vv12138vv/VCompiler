@@ -3,9 +3,8 @@
 Parser::Parser(const string &rules_file_name) : rules_file_name_(rules_file_name) {
     init();
 }
-
+//初始化语法分析器
 void Parser::init() {
-    
     generate_rules(rules_file_name_, true);
     generate_terminals_and_non_terminals(true);
     generate_firsts(true);
@@ -13,7 +12,7 @@ void Parser::init() {
     vector<int> end_item_index = std::move(find_acc_state());
     generate_LR1(true);
 }
-
+//根据规则文件生成Rule对象
 void Parser::generate_rules(const string &rules_file_name, bool verbose = false) {
     try {
         ifstream rules_file(rules_file_name);
@@ -36,7 +35,7 @@ void Parser::generate_rules(const string &rules_file_name, bool verbose = false)
         cerr << e.what() << '\n';
     }
 }
-
+//生成终极符与非终结符集
 void Parser::generate_terminals_and_non_terminals(bool verbose = false) {
     try {
         if (rules_.empty()) {
@@ -71,6 +70,7 @@ void Parser::generate_terminals_and_non_terminals(bool verbose = false) {
     }
 }
 
+//生成first集
 void Parser::generate_firsts(bool verbose = false) {
     try {
         while (true) {//开始对非终结符进行处理
@@ -165,6 +165,7 @@ bool Parser::update_first_set(const Symbol &non_terminal, const Symbol &sym) {
 
 }
 
+//判断非终结符能否推出空
 bool Parser::can_to_nil(const Symbol &non_terminal) {
     try {
         auto it = non_terminals_.find(non_terminal);
@@ -181,6 +182,7 @@ bool Parser::can_to_nil(const Symbol &non_terminal) {
     return false;
 }
 
+//生成项目集簇
 void Parser::generate_DFA(bool verbose = false) {
     //第一个项目
     Item start_item(rules_[0]);
@@ -323,6 +325,7 @@ void Parser::print_transfer() {
     cout << '\n';
 }
 
+//获得可接受的状态idxs
 vector<int> Parser::find_acc_state() {
     vector<int> res;
     //终结item S->S·,{#}
@@ -339,10 +342,10 @@ vector<int> Parser::find_acc_state() {
     }
     return res;
 }
-
+//生成LR1转移表
 void Parser::generate_LR1(bool verbose = false) {
     //初始化goto表与action表
-    for (const auto &item_set: item_sets_) {
+    for (const auto &item_set: item_sets_) {//对于每个状态，初始化其为error
         unordered_map<Symbol, Element, Symbol::Hasher> action_content;
         for (const auto &terminal: terminals_) {
             action_content.insert({terminal, Element(ElementType::Error, -1)});
@@ -354,15 +357,19 @@ void Parser::generate_LR1(bool verbose = false) {
         }
         goto_.insert({item_set.state_, std::move(goto_content)});
     }
+    //对于每个项目集中的每个项目
     for (auto &item_set: item_sets_) {
         for (auto &item: item_set.items_) {
             if (item.is_movable()) {//移进项目
                 Symbol trans_sym = item.next_sym();
                 int to_state = transfer_[item_set.state_][trans_sym];
+                //指定转移状态
                 action_[item_set.state_][trans_sym] = Element(ElementType::Move, to_state);
             } else if (item.is_reducible()) {//规约项目
+                //对于每一个前向搜索符
                 for (const auto &front: item.fronts_) {
-                    action_[item_set.state_][front] = Element(ElementType::Reduce, item.index_);
+                    //指定规约式子序号
+                    action_[item_set.state_][front] = Element(ElementType::Reduce, item.index_);//
                 }
             } else {
                 Symbol trans_sym = item.next_sym();
@@ -509,6 +516,7 @@ void Parser::analyze(const list<Symbol> &input, bool verbose = false) {//todo lr
     }
 }
 
+//根据token文件加载tokes
 list<Token> Parser::load_tokens(const string &token_file_name) {
     list<Token> tokens;
     try {
@@ -551,7 +559,7 @@ tuple<list<Symbol>,unordered_map<Symbol*,Token>> Parser::tokens_to_syms(const li
                 break;
         }
         content = token.value_;
-        syms.push_back(Symbol(content, symbol_type));
+        syms.emplace_back(content, symbol_type);
         sym_token_mp.insert({&syms.back(),token});
     }
     return {syms,sym_token_mp};
@@ -595,7 +603,8 @@ string Element::to_string(const Element &element) {
 }
 
 int main(int argc, char *argv[]) {
-    Parser parser(R"(C:\Users\jgss9\Desktop\VCompiler\parser\rules\grammar_rules.txt)");
+    std::string file_path(R"(C:\Users\jgss9\Desktop\VCompiler\parser\test\test_2.txt)");
+    Parser parser(file_path);
 //    parser.call(R"(C:\Users\jgss9\Desktop\VCompiler\cmake-build-debug\bin\tokens.txt)");
     return 0;
 }

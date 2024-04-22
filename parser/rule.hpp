@@ -19,6 +19,7 @@ const string Nil="@";
 const string Front_Search="#";
 const string Item_Delimieter="\xA1\xA4";
 
+//二型文法中符号类型
 enum class SymbolType {
     Terminal,
     Non_Terminal,
@@ -27,6 +28,7 @@ enum class SymbolType {
     Error
 };
 
+//符号抽象
 class Symbol {
 public:
     struct Hasher {
@@ -50,9 +52,10 @@ const Symbol NIL(Nil,SymbolType::Nil);
 const Symbol FRONT_SEARCH(Front_Search,SymbolType::Front);
 const Symbol ERROR("",SymbolType::Error);
 
+//产生式
 class Rule {
 public:
-    int index_;
+    int index_;//规则序号，用于LR1时指定规约规则
     string content_;
     Symbol left_;
     vector<Symbol> right_;

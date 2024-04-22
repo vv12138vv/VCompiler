@@ -10,6 +10,7 @@ using namespace std;
 
 class Parser;
 
+//项目集中每条项目
 class Item : public Rule {
 public:
     struct Hasher {
@@ -37,6 +38,7 @@ public:
     //返回指定范围内的first集
 };
 
+//项目集
 class ItemSet {
 public:
     int state_;
