@@ -11,31 +11,36 @@ string Lexer::preprocessing(const string &file_name) {
         if (!code_file.is_open()) {
             throw runtime_error("Can not open the file!");
         }
-        while (code_file.peek() != EOF) {//读取代码文件
-            code.push_back(static_cast<char>(code_file.peek()));
-            code_file.ignore();
-        }
-        size_t i = 0;
-        while (i <= code.length() - 1) {
-            if (code[i] == '/' && code[i + 1] == '/') {//单行注释
-                while (code[i] != '\n') {
-                    i += 1;
-                }
-            } else {
-                processed_code.push_back(code[i]);
-                if (code[i] == '\n') {
-                    line += 1;
-                }
-                i += 1;
-            }
-
-        }
+//        while (code_file.peek() != EOF) {//读取代码文件
+//            code.push_back(static_cast<char>(code_file.peek()));
+//            code_file.ignore();
+//        }
+        stringstream buff;
+        buff<<code_file.rdbuf();
+        code=std::move(buff.str());
+        processed_code=remove_comment(code);
         code_file.close();
     } catch (const exception &e) {
         cerr << e.what() << '\n';
     }
     while (code.find('\t') != string::npos) {
         code.erase(code.find('\t'), 1);
+    }
+    return processed_code;
+}
+
+string Lexer::remove_comment(const std::string &code) {
+    string processed_code;
+    string line;
+    istringstream code_stream(code);
+    while(getline(code_stream,line)){
+        auto comment_pos=line.find("//");
+        if(comment_pos!=string::npos){
+            processed_code+=line.substr(0,comment_pos);
+        }else{
+            processed_code+=line;
+        }
+        processed_code+='\n';
     }
     return processed_code;
 }
@@ -48,6 +53,11 @@ Lexer::Lexer(const string &rules_file_name, const string &key_words_file_name) :
     auto_machines_.insert({LabelType::Delimiter, make_unique<AutoMachine>(rules_file_name, LabelType::Delimiter)});
     auto_machines_.insert({LabelType::Identifier, make_unique<AutoMachine>(rules_file_name, LabelType::Identifier)});
     auto_machines_.insert({LabelType::Scientific, make_unique<AutoMachine>(rules_file_name, LabelType::Scientific)});
+//    auto_machines_[LabelType::Operator]->print_content();
+//    auto_machines_[LabelType::Delimiter]->print_content();
+//    auto_machines_[LabelType::Identifier]->print_content();
+//    auto_machines_[LabelType::Scientific]->print_content();
+
     //读取关键字
     read_key_words(key_words_file_name);
 }
@@ -59,7 +69,7 @@ list<Token> Lexer::analyze(const std::string &file_name) {//todo 这里可能有
     size_t line = 1;
     int i = 0;
     string error_msg;
-    while (code[i] != 0) {
+    while (i<=code.size()-1) {
         char ch = static_cast<char>(code[i]);
         if (ch == '\n') {
             line += 1;
@@ -70,41 +80,48 @@ list<Token> Lexer::analyze(const std::string &file_name) {//todo 这里可能有
             i += 1;
             continue;
         }
-        int j = find_word_end(code, i);
         //切分出一个可能的token
+        int j = find_word_end(code, i);
         string part = code.substr(i, j - i + 1);
         int len = -1;
+        //首先使用Identifier状态机去检测
         len = auto_machines_[LabelType::Identifier]->analyze(part);
-        if (len == -1) {
+        if (len == -1) {//接受错误，即无法处于终止态
             error_msg = "[Line num:" + to_string(line) + "]: " + part + '\n';
             break;
-        } else if (len == 0) {
+        } else if (len == 0) {//无法接收
 
-        } else {
+        } else {//根据可接受的最大长度切出Token
             string token = part.substr(0, len);
-            if (is_key_word(token)) {
-                Token new_token(line, TokenType::Keyword, token);
-                tokens.push_back(new_token);
-            } else {
-                Token new_token(line, TokenType::Identifier, token);
-                tokens.push_back(new_token);
+            if (is_key_word(token)) {//若该Identifier是Keyword
+//                Token new_token(line, TokenType::Keyword, token);
+//                tokens.push_back(new_token);
+                tokens.emplace_back(line,TokenType::Keyword,token);
+            } else {//若该Identifer不是Keyword
+//                Token new_token(line, TokenType::Identifier, token);
+//                tokens.push_back(new_token);
+                tokens.emplace_back(line,TokenType::Identifier,token);
             }
             i = i + len;
             continue;
         }
+
+        //使用界符自动机去检测
         len = auto_machines_[LabelType::Delimiter]->analyze(part);
-        if (len == -1) {
+        if (len == -1) {//接受错误，即无法处于接收态
             error_msg = "[Line num:" + to_string(line) + "]: " + part + '\n';
             break;
         } else if (len == 0) {
 
         } else {
             string token = part.substr(0, len);
-            Token new_token(line, TokenType::Delimiter, token);
-            tokens.push_back(new_token);
+//            Token new_token(line, TokenType::Delimiter, token);
+//            tokens.push_back(new_token);
+            tokens.emplace_back(line,TokenType::Delimiter,token);
             i = i + len;
             continue;
         }
+        //运算符自动机去检测
         len = auto_machines_[LabelType::Operator]->analyze(part);
         if (len == -1) {
             error_msg = "[Line num:" + to_string(line) + "]: " + part + '\n';
@@ -113,11 +130,13 @@ list<Token> Lexer::analyze(const std::string &file_name) {//todo 这里可能有
 
         } else {
             string token = part.substr(0, len);
-            Token new_token(line, TokenType::Operator, token);
-            tokens.push_back(new_token);
+//            Token new_token(line, TokenType::Operator, token);
+//            tokens.push_back(new_token);
+            tokens.emplace_back(line,TokenType::Operator,token);
             i = i + len;
             continue;
         }
+        //调用数字自动机去检测
         len = auto_machines_[LabelType::Scientific]->analyze(part);
         if (len == -1) {
             error_msg = "[Line num:" + to_string(line) + "]: " + part + '\n';
@@ -132,7 +151,7 @@ list<Token> Lexer::analyze(const std::string &file_name) {//todo 这里可能有
             continue;
         }
     }
-    if (error_msg.empty()) {
+    if (!error_msg.empty()) {
         cerr << error_msg << '\n';
     }
     return tokens;

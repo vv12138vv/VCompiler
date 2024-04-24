@@ -72,7 +72,7 @@ void AutoMachine::init() {
     dfa_end_states_=find_end_dfa_state();
 
 }
-
+//根据字符串序列生成rules
 void AutoMachine::generate_rules(const list<string> &rules_string) {
     try {
         for (const string &rule_string: rules_string) {
@@ -90,16 +90,18 @@ void AutoMachine::generate_rules(const list<string> &rules_string) {
     }
 }
 
+//求解NFA，end为终止状态
 void AutoMachine::make_nfa(int end) {
     //对于每个非终结符，求出他的转移
     for (char non_terminal: non_terminals_) {
         unordered_map<char, unordered_set<int>> move;
         unordered_set<char> has_edge;
-        //
+
         for (const auto &rule: rules_) {
             if (rule.first[0] != non_terminal) {
                 continue;
             }
+            //根据自动机的种类进行生成
             switch (label_type_) {
                 case LabelType::Identifier:
                     if (rule.second.length() == 1) {
@@ -210,12 +212,13 @@ void AutoMachine::make_nfa(int end) {
 void AutoMachine::make_dfa() {
     //初始化初态
     dfa_state_count_=0;
+    //初始状态空闭包
     unordered_set<int> start_states;
     start_states.insert(nfa_start_index_);
-    //初始状态空闭包
     unordered_set<int> e_closure= get_e_closure(start_states);
-    DFAState start_state(false,e_closure);
+    DFAState start_state(false,std::move(e_closure));
     dfa_[dfa_state_count_++]=std::move(start_state);
+
     int next_state=0;
     while(next_state<dfa_state_count_){
         int now=next_state;
@@ -230,7 +233,7 @@ void AutoMachine::make_dfa() {
                 if(move_e_closure.empty()){
                     dfa_[now].to_[alphabet]=-1;
                 }else{
-                    DFAState new_state(false,move_e_closure);
+                    DFAState new_state(false,std::move(move_e_closure));
                     dfa_[dfa_state_count_]=new_state;
                     dfa_[now].to_[alphabet]=dfa_state_count_;
                     dfa_state_count_+=1;
@@ -240,7 +243,7 @@ void AutoMachine::make_dfa() {
         next_state+=1;
     }
 }
-
+//求解状态的e闭包
 unordered_set<int> AutoMachine::get_e_closure(const unordered_set<int> &t) {
     unordered_set<int> e_closure;
     //用于广搜
@@ -264,7 +267,7 @@ unordered_set<int> AutoMachine::get_e_closure(const unordered_set<int> &t) {
     }
     return e_closure;
 }
-
+//求解状态集合I的ch弧转换
 unordered_set<int> AutoMachine::move(const DFAState& dfa_state,char ch){
     unordered_set<int> move_result;
     for(auto state:dfa_state.states_){
@@ -503,7 +506,8 @@ int AutoMachine::move_to(char ch, int cur_state) {
     return -1;
 }
 
-int AutoMachine::analyze(const std::string &part) {//返回值是可接受的数量,若返回-1则说明有错
+//返回自动机可接受的数量，0则表示一个字符都无法接收，-1表示出现错误，其余整数为可接受的自动机可接受的数量
+int AutoMachine::analyze(const std::string &part) {
     int len=0;
     char ch=static_cast<char>(part[0]);
     int state= move_to(ch,0);

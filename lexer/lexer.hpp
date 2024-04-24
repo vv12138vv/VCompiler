@@ -27,7 +27,8 @@ public:
     Lexer() = delete;
     Lexer(const string &rules_file_name,const string& key_words_file_name);
     //预处理代码文件
-    string preprocessing(const string &file_name);
+    static string preprocessing(const string &file_name);
+    static string remove_comment(const string& code);
     //分析代码，返回token序列
     list<Token> analyze(const string &file_name);
     //寻找单词的末尾

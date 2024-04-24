@@ -29,10 +29,10 @@ public:
     //可以转移到的状态
     unordered_map<char, int> to_;
 public:
-    DFAState(bool is_existed, unordered_set<int> states) : is_existed_(is_existed), states_(std::move(states)) {
+    DFAState(bool is_existed, unordered_set<int>&& states) : is_existed_(is_existed), states_(std::move(states)) {
     }
 
-    DFAState() {}
+    DFAState()=default;
 
     DFAState(const DFAState &that) {
         this->is_existed_ = that.is_existed_;
