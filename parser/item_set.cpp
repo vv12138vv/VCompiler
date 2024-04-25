@@ -52,6 +52,19 @@ Symbol Item::next_sym() const {
 
 string Item::to_string(const Item &item) {
     string content;
+    if(item.is_nil_rule()){
+        content+=item.left_.content_+"->";
+        content+=Item_Delimieter;
+        content+=",{";
+        for(const auto& sym:item.fronts_){
+            content+=(sym.content_+',');
+        }
+        if(content.back()==','){
+            content.pop_back();
+        }
+        content+='}';
+        return content;
+    }
     content = item.left_.content_ + "->";
     for(int i=0;i<item.right_.size();i++){
         if(i==item.pointer_){
@@ -102,6 +115,9 @@ bool Item::is_reducible() const {
             throw Exception("Pointer can not larger than right","");
         }
         if(pointer_==right_.size()){
+            return true;
+        }
+        if(pointer_==0&&right_.size()==1&&right_[0]==NIL){//对于右部为空的产生式，应当规约
             return true;
         }
     }catch(const Exception& e){
@@ -171,18 +187,20 @@ bool ItemSet::insert(const Item &item) {
 
 
 
-
+//填充当前项目集
 void ItemSet::fill() {
     list<Item> item_list(items_.begin(),items_.end());
     while(true){
         bool is_changed=false;
         for (const auto &it: item_list) {
+            //仅对于 · 后为非终结符的项目进行处理
             Symbol next_sym = it.next_sym();
             if (next_sym.symbol_type_ != SymbolType::Non_Terminal) {
                 continue;
             }
             auto firsts= get_firsts(it,it.pointer_+1,it.right_.size()-1);
             for (const auto &rule: parser_.rules_) {
+                //将生成式中左部与 · 后字符相同的规则转变为Item填入当前ItemSet
                 if (rule.left_ == next_sym) {
                     Item new_item(rule);
                     //插入first后部进入front集
@@ -195,7 +213,7 @@ void ItemSet::fill() {
                     auto res=items_.insert(new_item);
                     if(res.second){
                         is_changed=true;
-                        item_list.emplace_back(new_item);
+                        item_list.push_back(std::move(new_item));
                     }
                 }
             }

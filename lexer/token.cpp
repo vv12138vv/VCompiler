@@ -17,31 +17,14 @@ unordered_map<string,TokenType> Token::string_to_token_type={
 };
 
 Token Token::from_string(const string &str) {
-    int i = 0;
-    while (str[i] != '(') {
-        i += 1;
-    }
-    i+=1;
-    int j = i;
-    while (str[j] != ',') {
-        j += 1;
-    };
-    string s=str.substr(i,j-i);
-    size_t line = stoi(s);
-    j += 1;
-    i = j;
-    while (str[i] != ',') {
-        i += 1;
-    }
-    s=str.substr(j,i-j);
-    TokenType token_type = string_to_token_type[s];
-    i += 1;
-    j = i;
-    while (str[j] != ')') {
-        j += 1;
-    }
-    s=str.substr(i,j-i);
-    return Token(line, token_type, s);
+    string s=str.substr(1,str.size()-2);
+    cout<<s<<'\n';
+    s+=',';
+    vector<string> parts=Token::split(s,',');
+    size_t line= stoi(parts[0]);
+    TokenType type=string_to_token_type[parts[1]];
+    string value=parts[2];
+    return Token(line,type,value);
 }
 
 string Token::to_string(const Token &token) {
@@ -53,3 +36,14 @@ string Token::to_string(const Token &token) {
     res += ')';
     return res;
 }
+
+vector<string> Token::split(const string &str,char delimiter) {
+    vector<string> res;
+    string part;
+    istringstream part_stream(str);
+    while(getline(part_stream,part,delimiter)){
+        res.push_back(part);
+    }
+    return res;
+}
+

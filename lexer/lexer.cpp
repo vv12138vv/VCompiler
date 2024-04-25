@@ -94,12 +94,8 @@ list<Token> Lexer::analyze(const std::string &file_name) {//todo 这里可能有
         } else {//根据可接受的最大长度切出Token
             string token = part.substr(0, len);
             if (is_key_word(token)) {//若该Identifier是Keyword
-//                Token new_token(line, TokenType::Keyword, token);
-//                tokens.push_back(new_token);
                 tokens.emplace_back(line,TokenType::Keyword,token);
             } else {//若该Identifer不是Keyword
-//                Token new_token(line, TokenType::Identifier, token);
-//                tokens.push_back(new_token);
                 tokens.emplace_back(line,TokenType::Identifier,token);
             }
             i = i + len;
@@ -115,8 +111,6 @@ list<Token> Lexer::analyze(const std::string &file_name) {//todo 这里可能有
 
         } else {
             string token = part.substr(0, len);
-//            Token new_token(line, TokenType::Delimiter, token);
-//            tokens.push_back(new_token);
             tokens.emplace_back(line,TokenType::Delimiter,token);
             i = i + len;
             continue;
@@ -130,8 +124,6 @@ list<Token> Lexer::analyze(const std::string &file_name) {//todo 这里可能有
 
         } else {
             string token = part.substr(0, len);
-//            Token new_token(line, TokenType::Operator, token);
-//            tokens.push_back(new_token);
             tokens.emplace_back(line,TokenType::Operator,token);
             i = i + len;
             continue;

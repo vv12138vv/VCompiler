@@ -135,7 +135,9 @@ public:
     int move_to(char ch, int cur_state);
     //对输出串进行自动机分析
     int analyze(const string &part);
+    //生成DFA的正确终止状态
     unordered_set<int> find_end_dfa_state();
+
 
     //以下是一些输出函数
     void print_dfa();

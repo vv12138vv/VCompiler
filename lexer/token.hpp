@@ -5,7 +5,8 @@
 #include<string>
 #include<unordered_map>
 #include<unordered_set>
-
+#include<vector>
+#include<sstream>
 
 using namespace std;
 
@@ -36,5 +37,6 @@ public:
     static Token from_string(const string& str);
     //由Token转string
     static string to_string(const Token& token);
+    static vector<string> split(const string& str,char delimiter);
 };
 #endif

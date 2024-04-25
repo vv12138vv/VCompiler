@@ -60,6 +60,10 @@ void Rule::print() const {
     cout << '\n';
 }
 
+bool Rule::is_nil_rule() const {
+    return right_.size()==1&&right_[0]==NIL;
+}
+
 string Rule::to_string(const Rule &rule) {
     string res;
     res = rule.left_.content_ + "->";

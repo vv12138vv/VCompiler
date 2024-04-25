@@ -1,3 +1,4 @@
+#include <cassert>
 #include "parser.hpp"
 
 Parser::Parser(const string &rules_file_name) : rules_file_name_(rules_file_name) {
@@ -9,7 +10,6 @@ void Parser::init() {
     generate_terminals_and_non_terminals(true);
     generate_firsts(true);
     generate_DFA(true);
-    vector<int> end_item_index = std::move(find_acc_state());
     generate_LR1(true);
 }
 //根据规则文件生成Rule对象
@@ -78,21 +78,23 @@ void Parser::generate_firsts(bool verbose = false) {
             for (const auto &rule: rules_) {
                 int count = 0;
                 for (const auto &sym: rule.right_) {
-                    if (sym.symbol_type_ == SymbolType::Terminal) {
+                    if (sym.symbol_type_ == SymbolType::Terminal || sym.symbol_type_==SymbolType::Nil) {
                         bool is_updated = update_first_set(rule.left_, sym);
                         if (is_updated) {
                             is_changed = true;
                         }
                         count += 1;
                         break;
-                    } else if (sym.symbol_type_ == SymbolType::Nil) {
-                        bool is_updated = update_first_set(rule.left_, sym);
-                        if (is_updated) {
-                            is_changed = true;
-                        }
-                        count += 1;
-                        break;
-                    } else if (sym.symbol_type_ == SymbolType::Non_Terminal) {
+                    }
+//                    else if (sym.symbol_type_ == SymbolType::Nil) {
+//                        bool is_updated = update_first_set(rule.left_, sym);
+//                        if (is_updated) {
+//                            is_changed = true;
+//                        }
+//                        count += 1;
+//                        break;
+//                    }
+                    else if (sym.symbol_type_ == SymbolType::Non_Terminal) {
                         bool is_updated = update_first_set(rule.left_, sym);
                         if (is_updated) {
                             is_changed = true;
@@ -122,7 +124,7 @@ void Parser::generate_firsts(bool verbose = false) {
     }
 }
 
-
+//将sym插入non_terminal的first集中
 bool Parser::update_first_set(const Symbol &non_terminal, const Symbol &sym) {
     bool is_updated = false;
     try {
@@ -130,6 +132,7 @@ bool Parser::update_first_set(const Symbol &non_terminal, const Symbol &sym) {
         if (it == non_terminals_.end()) {
             throw Exception("Can not find the non_terminal: ", non_terminal.content_);
         }
+        //若要插入的Sym是Nil,则通过can_to_nil判断是否已插入过，否则则插入。
         if (sym.symbol_type_ == SymbolType::Nil) {
             if (!can_to_nil(non_terminal)) {
                 auto res = it->second.insert(NIL);
@@ -137,7 +140,7 @@ bool Parser::update_first_set(const Symbol &non_terminal, const Symbol &sym) {
                     is_updated = true;
                 }
             }
-        } else if (sym.symbol_type_ == SymbolType::Terminal) {
+        } else if (sym.symbol_type_ == SymbolType::Terminal) {//若插入终结符，则判断一下是否已有，若没有则直接插入
             auto i = it->second.find(sym);
             if (i == it->second.end()) {
                 auto res = it->second.insert(sym);
@@ -145,7 +148,7 @@ bool Parser::update_first_set(const Symbol &non_terminal, const Symbol &sym) {
                     is_updated = true;
                 }
             }
-        } else if (sym.symbol_type_ == SymbolType::Non_Terminal) {
+        } else if (sym.symbol_type_ == SymbolType::Non_Terminal) {//若插入非终结符，则将其first集中除Nil之外的终结符插入
             auto i = non_terminals_.find(sym);
             for (const auto &item: i->second) {
                 if (item.symbol_type_ == SymbolType::Nil) {
@@ -162,7 +165,6 @@ bool Parser::update_first_set(const Symbol &non_terminal, const Symbol &sym) {
         cerr << e.what() << '\n';
     }
     return is_updated;
-
 }
 
 //判断非终结符能否推出空
@@ -199,7 +201,7 @@ void Parser::generate_DFA(bool verbose = false) {
         ItemSet now = q.front();
         q.pop();
         unordered_set<Item, Item::Hasher> &items = now.items_;
-        unordered_map<Item const *, bool> transferred;
+        unordered_map<Item const *, bool> transferred;//用于标记某个Item是否转移过
         for (const auto &item: items) {
             transferred.insert({&item, false});
         }
@@ -211,8 +213,9 @@ void Parser::generate_DFA(bool verbose = false) {
                 continue;
             }
             ItemSet new_item_set(item_sets_.size(), *this);
+            //发生转移的字符
             Symbol next_sym = item.next_sym();
-            for (const auto &item1: items) {
+            for (const auto &item1: items) {//遍历项目，找到点后的第一个符号为转移字符的项目
                 if (item1.next_sym() == next_sym && Item::can_trans(item1)) {
                     new_item_set.insert(Item::move_pointer(item1));
                     transferred.insert({&item1, true});
@@ -223,9 +226,9 @@ void Parser::generate_DFA(bool verbose = false) {
             if (to != -1) {
                 transfer_[now.state_].insert({next_sym, to});
             } else {
+                transfer_[now.state_].insert({next_sym, item_sets_.size()});
                 item_sets_.push_back(new_item_set);
                 q.push(new_item_set);
-                transfer_[now.state_].insert({next_sym, item_sets_.size()});
             }
         }
     }
@@ -235,10 +238,11 @@ void Parser::generate_DFA(bool verbose = false) {
     }
 }
 
-
+//返回项目集是否已存在，若返回为-1则表示不存在，存在则返回其idx
 int Parser::is_existed(const ItemSet &item_set) {
     for (int i = 0; i < item_sets_.size(); i++) {
         if (item_sets_[i] == item_set) {
+            assert(i==item_sets_[i].state_);
             return i;
         }
     }
@@ -369,9 +373,9 @@ void Parser::generate_LR1(bool verbose = false) {
                 //对于每一个前向搜索符
                 for (const auto &front: item.fronts_) {
                     //指定规约式子序号
-                    action_[item_set.state_][front] = Element(ElementType::Reduce, item.index_);//
+                    action_[item_set.state_][front] = Element(ElementType::Reduce, item.index_);
                 }
-            } else {
+            } else {//todo some fault
                 Symbol trans_sym = item.next_sym();
                 try {
                     if (trans_sym.symbol_type_ != SymbolType::Non_Terminal) {
@@ -428,11 +432,12 @@ void Parser::print_goto_and_action() {
     cout << '\n';
 }
 
-void Parser::analyze(const list<Symbol> &input, bool verbose = false) {//todo lr1分析
+void Parser::analyze(const list<Symbol> &input,const unordered_map<string,TokenType>& sym_token_mp, bool verbose = false) {//todo lr1分析
     //初始化输入串
     try {
         list<Symbol> str = input;
-        str.push_back(FRONT_SEARCH);
+        Symbol end(FRONT_SEARCH);
+        str.push_back(end);
         //初始化状态栈与符号栈,为了方便展示内容，不使用std::stack,使用std::list，其中尾部为栈顶，头部为栈底
         list<int> state_stack;
         list<Symbol> symbol_stack;
@@ -446,9 +451,20 @@ void Parser::analyze(const list<Symbol> &input, bool verbose = false) {//todo lr
             int cur_state = state_stack.back();
             Symbol top_sym = str.front();
             Element element;
-            if (top_sym.symbol_type_ == SymbolType::Non_Terminal) {
-                element = action_[cur_state][top_sym];
-            } else if (top_sym.symbol_type_ == SymbolType::Terminal) {
+            if (top_sym.symbol_type_ == SymbolType::Terminal||top_sym.symbol_type_==SymbolType::Front) {
+                Symbol fake_sym=top_sym;
+                auto target=sym_token_mp.find(top_sym.content_);
+                if(target!= sym_token_mp.end()){
+                    if(target->second==TokenType::Identifier){
+                        fake_sym.content_="[identifier]";
+                    }else if(target->second==TokenType::Operator){//todo ->应该怎么处理
+                        if(fake_sym.content_!="->"&&fake_sym.content_!="="){
+                            fake_sym.content_="[operator]";
+                        }
+                    }
+                }
+                element = action_[cur_state][fake_sym];
+            } else if (top_sym.symbol_type_ == SymbolType::Non_Terminal) {
                 element = goto_[cur_state][top_sym];
             }
             switch (element.element_type_) {
@@ -461,6 +477,9 @@ void Parser::analyze(const list<Symbol> &input, bool verbose = false) {//todo lr
                 case ElementType::Reduce: {
                     const Rule &reduce_rule = rules_[element.index_];
                     int pop_size = static_cast<int>(reduce_rule.right_.size());
+                    if(reduce_rule.is_nil_rule()){
+                        pop_size=0;
+                    }
                     for (int i = 0; i < pop_size; i++) {
                         state_stack.pop_back();
                         symbol_stack.pop_back();
@@ -488,7 +507,7 @@ void Parser::analyze(const list<Symbol> &input, bool verbose = false) {//todo lr
             }
             step += 1;
             if (verbose) {
-                [&]() {
+                auto print_analyze=[&]() {
                     string content;
                     content += to_string(step) + '\t';
                     for (const auto &state: state_stack) {
@@ -506,6 +525,7 @@ void Parser::analyze(const list<Symbol> &input, bool verbose = false) {//todo lr
                     content += Element::to_string(element);
                     cout << content << '\n';
                 };
+                print_analyze();
             }
             if (is_acc || is_error) {
                 break;
@@ -535,32 +555,15 @@ list<Token> Parser::load_tokens(const string &token_file_name) {
     return tokens;
 }
 
-tuple<list<Symbol>,unordered_map<Symbol*,Token>> Parser::tokens_to_syms(const list<Token> &tokens) {
+tuple<list<Symbol>,unordered_map<string,TokenType>> Parser::tokens_to_syms(const list<Token> &tokens) {
     list<Symbol> syms;
-    unordered_map<Symbol*,Token> sym_token_mp;
+    unordered_map<string,TokenType> sym_token_mp;
     for (const Token &token: tokens) {
         string content;
-        SymbolType symbol_type;
-        switch (token.type_) {
-            case TokenType::Identifier:
-                symbol_type = SymbolType::Non_Terminal;
-                break;
-            case TokenType::Keyword:
-                symbol_type = SymbolType::Non_Terminal;
-                break;
-            case TokenType::Operator:
-                symbol_type = SymbolType::Terminal;
-                break;
-            case TokenType::Constant:
-                symbol_type = SymbolType::Non_Terminal;
-                break;
-            case TokenType::Delimiter:
-                symbol_type = SymbolType::Terminal;
-                break;
-        }
+        SymbolType symbol_type=SymbolType::Terminal;
         content = token.value_;
         syms.emplace_back(content, symbol_type);
-        sym_token_mp.insert({&syms.back(),token});
+        sym_token_mp.insert({content,token.type_});
     }
     return {syms,sym_token_mp};
 }
@@ -568,8 +571,11 @@ tuple<list<Symbol>,unordered_map<Symbol*,Token>> Parser::tokens_to_syms(const li
 void Parser::call(const string &token_file_name) {
     list<Token> tokens= std::move(load_tokens(token_file_name));
     auto [syms,sym_token_mp]= std::move(tokens_to_syms(tokens));
-    analyze(syms,true);
+    analyze(syms,sym_token_mp,true);
+//    auto temp=action_[64];
+//    cout<<"t\n";
 }
+
 
 Element::Element(ElementType element_type, int index) : element_type_(element_type), index_(index) {
 
@@ -603,9 +609,10 @@ string Element::to_string(const Element &element) {
 }
 
 int main(int argc, char *argv[]) {
-    std::string file_path(R"(C:\Users\jgss9\Desktop\VCompiler\parser\test\test_2.txt)");
+//    std::string file_path(R"(C:\Users\jgss9\Desktop\VCompiler\parser\test\test_2.txt)");
+    std::string file_path(R"(C:\Users\jgss9\Desktop\VCompiler\parser\rules\grammar_rules.txt)");
     Parser parser(file_path);
-//    parser.call(R"(C:\Users\jgss9\Desktop\VCompiler\cmake-build-debug\bin\tokens.txt)");
+    parser.call(R"(C:\Users\jgss9\Desktop\VCompiler\cmake-build-debug\bin\tokens.txt)");
     return 0;
 }
 
