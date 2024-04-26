@@ -196,6 +196,13 @@ void Lexer::save_to(const string &file_name, const list<Token> &tokens) {
     } catch (const Exception &e) {
         cerr << e.what() << '\n';
     }
+    cout<<"save token file in "<<file_name<<" finished!\n";
+}
+
+void Lexer::print_tokens(const list<Token> &tokens) {
+    for(const Token& token:tokens){
+        cout<<Token::to_string(token)<<'\n';
+    }
 }
 
 
@@ -219,6 +226,7 @@ int main(int args, char *argv[]) {
     Lexer lexer(rules_file_name, key_words_file_name);
     list<Token> tokens = lexer.analyze(code_file_name);
     Lexer::save_to("./tokens.txt", tokens);
+    Lexer::print_tokens(tokens);
     return 0;
 }
 

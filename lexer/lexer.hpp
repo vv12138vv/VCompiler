@@ -37,6 +37,7 @@ public:
     list<Token> other_analyze(const string& file_name);
     //存储token序列
     static void save_to(const string& file_name,const list<Token>& tokens);
+    static void print_tokens(const list<Token>& tokens);
 };
 
 

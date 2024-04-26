@@ -457,10 +457,12 @@ void Parser::analyze(const list<Symbol> &input,const unordered_map<string,TokenT
                 if(target!= sym_token_mp.end()){
                     if(target->second==TokenType::Identifier){
                         fake_sym.content_="[identifier]";
-                    }else if(target->second==TokenType::Operator){//todo ->应该怎么处理
+                    }else if(target->second==TokenType::Operator){
                         if(fake_sym.content_!="->"&&fake_sym.content_!="="){
                             fake_sym.content_="[operator]";
                         }
+                    }else if(target->second==TokenType::Constant){
+                        fake_sym.content_="[constant]";
                     }
                 }
                 element = action_[cur_state][fake_sym];
@@ -510,18 +512,20 @@ void Parser::analyze(const list<Symbol> &input,const unordered_map<string,TokenT
                 auto print_analyze=[&]() {
                     string content;
                     content += to_string(step) + '\t';
+                    //打印状态栈
                     for (const auto &state: state_stack) {
                         content += to_string(state);
                     }
-                    content += '\t';
+                    content += "\t\t";
+                    //打印符号栈
                     for (const auto &sym: symbol_stack) {
                         content += sym.content_;
                     }
-                    content += '\t';
+                    content += "\t\t";
                     for (const auto &sym: str) {
                         content += sym.content_;
                     }
-                    content += '\t';
+                    content += "\t\t";
                     content += Element::to_string(element);
                     cout << content << '\n';
                 };
@@ -572,8 +576,6 @@ void Parser::call(const string &token_file_name) {
     list<Token> tokens= std::move(load_tokens(token_file_name));
     auto [syms,sym_token_mp]= std::move(tokens_to_syms(tokens));
     analyze(syms,sym_token_mp,true);
-//    auto temp=action_[64];
-//    cout<<"t\n";
 }
 
 
@@ -612,7 +614,7 @@ int main(int argc, char *argv[]) {
 //    std::string file_path(R"(C:\Users\jgss9\Desktop\VCompiler\parser\test\test_2.txt)");
     std::string file_path(R"(C:\Users\jgss9\Desktop\VCompiler\parser\rules\grammar_rules.txt)");
     Parser parser(file_path);
-    parser.call(R"(C:\Users\jgss9\Desktop\VCompiler\cmake-build-debug\bin\tokens.txt)");
+    parser.call(R"(C:\Users\jgss9\Desktop\VCompiler\cmake-build-debug\lexer\tokens.txt)");
     return 0;
 }
 
