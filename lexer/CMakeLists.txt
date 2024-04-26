@@ -1,3 +1,5 @@
-add_executable(lexer auto_machine.cpp auto_machine.hpp
-        lexer.cpp
-        lexer.hpp)
+aux_source_directory(${CMAKE_CURRENT_LIST_DIR} LEXER_SRC)
+
+add_executable(lexer ${LEXER_SRC})
+
+target_link_libraries(lexer common)

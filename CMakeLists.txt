@@ -3,8 +3,12 @@ project(VCompiler)
 
 set(CMAKE_CXX_STANDARD 17)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-#set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
+include_directories(
+        ${CMAKE_CURRENT_LIST_DIR}/common
+        ${CMAKE_CURRENT_LIST_DIR}/lexer
+        ${CMAKE_CURRENT_LIST_DIR}/parser
+)
 
+add_subdirectory(common)
 add_subdirectory(lexer)
 add_subdirectory(parser)

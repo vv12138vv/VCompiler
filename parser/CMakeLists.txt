@@ -1,6 +1,5 @@
-add_executable(parser
-        parser.hpp parser.cpp
-        rule.hpp rule.cpp
-        exception.hpp exception.cpp
-        item.hpp item.cpp
-)
+aux_source_directory(${CMAKE_CURRENT_LIST_DIR} PARSER_SRC)
+
+add_executable(parser ${PARSER_SRC})
+
+target_link_libraries(parser common)
