@@ -75,7 +75,7 @@ public:
     void generate_LR1(bool verbose);
     //加载词法分析生成的token
     list<Token> load_tokens(const string& token_file_name);
-    void analyze(const list<Symbol>& input,const unordered_map<string,TokenType>& sym_token_mp,bool verbose);
+    void analyze(const list<Symbol>& input,const unordered_map<string,const Token&>& sym_token_mp,bool verbose);
     void call(const string& token_file_name);
     //判断某个非终结符能否退出空
     bool can_to_nil(const Symbol& non_terminal);
@@ -83,7 +83,7 @@ public:
     bool update_first_set(const Symbol& non_terminal,const Symbol& sym);
     int is_existed(const ItemSet& item_set);
     vector<int> find_acc_state();
-    tuple<list<Symbol>,unordered_map<string,TokenType>> tokens_to_syms(const list<Token>& tokens);
+    pair<list<Symbol>,unordered_map<string,const Token&>> tokens_to_syms(const list<Token>& tokens);
     void print_terminals();
     void print_non_terminals();
     void print_rules();

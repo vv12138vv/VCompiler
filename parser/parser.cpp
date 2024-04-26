@@ -1,6 +1,37 @@
 #include <cassert>
 #include "parser.hpp"
 
+Element::Element(ElementType element_type, int index) : element_type_(element_type), index_(index) {
+
+}
+
+Element::Element() {
+    element_type_ = ElementType::Error;
+    index_ = -1;
+}
+
+string Element::to_string(const Element &element) {
+    string content;
+    switch (element.element_type_) {
+        case ElementType::Error:
+            content += "\\";
+            break;
+        case ElementType::Accept:
+            content += "acc";
+            break;
+        case ElementType::Goto:
+            content += std::to_string(element.index_);
+            break;
+        case ElementType::Move:
+            content += ('S' + std::to_string(element.index_));
+            break;
+        case ElementType::Reduce:
+            content += ('r' + std::to_string(element.index_));
+            break;
+    }
+    return content;
+}
+
 Parser::Parser(const string &rules_file_name) : rules_file_name_(rules_file_name) {
     init();
 }
@@ -432,7 +463,7 @@ void Parser::print_goto_and_action() {
     cout << '\n';
 }
 
-void Parser::analyze(const list<Symbol> &input,const unordered_map<string,TokenType>& sym_token_mp, bool verbose = false) {//todo lr1分析
+void Parser::analyze(const list<Symbol> &input,const unordered_map<string,const Token&>& sym_token_mp, bool verbose = false) {//todo lr1分析
     //初始化输入串
     try {
         list<Symbol> str = input;
@@ -452,20 +483,8 @@ void Parser::analyze(const list<Symbol> &input,const unordered_map<string,TokenT
             Symbol top_sym = str.front();
             Element element;
             if (top_sym.symbol_type_ == SymbolType::Terminal||top_sym.symbol_type_==SymbolType::Front) {
-                Symbol fake_sym=top_sym;
-                auto target=sym_token_mp.find(top_sym.content_);
-                if(target!= sym_token_mp.end()){
-                    if(target->second==TokenType::Identifier){
-                        fake_sym.content_="[identifier]";
-                    }else if(target->second==TokenType::Operator){
-                        if(fake_sym.content_!="->"&&fake_sym.content_!="="){
-                            fake_sym.content_="[operator]";
-                        }
-                    }else if(target->second==TokenType::Constant){
-                        fake_sym.content_="[constant]";
-                    }
-                }
-                element = action_[cur_state][fake_sym];
+                Symbol fake_sym=Symbol::make_fake_symbol(top_sym,sym_token_mp);
+                element=action_[cur_state][fake_sym];
             } else if (top_sym.symbol_type_ == SymbolType::Non_Terminal) {
                 element = goto_[cur_state][top_sym];
             }
@@ -559,15 +578,15 @@ list<Token> Parser::load_tokens(const string &token_file_name) {
     return tokens;
 }
 
-tuple<list<Symbol>,unordered_map<string,TokenType>> Parser::tokens_to_syms(const list<Token> &tokens) {
+pair<list<Symbol>,unordered_map<string,const Token&>> Parser::tokens_to_syms(const list<Token> &tokens) {
     list<Symbol> syms;
-    unordered_map<string,TokenType> sym_token_mp;
+    unordered_map<string,const Token&> sym_token_mp;
     for (const Token &token: tokens) {
         string content;
         SymbolType symbol_type=SymbolType::Terminal;
         content = token.value_;
         syms.emplace_back(content, symbol_type);
-        sym_token_mp.insert({content,token.type_});
+        sym_token_mp.insert({content,token});
     }
     return {syms,sym_token_mp};
 }
@@ -578,37 +597,6 @@ void Parser::call(const string &token_file_name) {
     analyze(syms,sym_token_mp,true);
 }
 
-
-Element::Element(ElementType element_type, int index) : element_type_(element_type), index_(index) {
-
-}
-
-Element::Element() {
-    element_type_ = ElementType::Error;
-    index_ = -1;
-}
-
-string Element::to_string(const Element &element) {
-    string content;
-    switch (element.element_type_) {
-        case ElementType::Error:
-            content += "\\";
-            break;
-        case ElementType::Accept:
-            content += "acc";
-            break;
-        case ElementType::Goto:
-            content += std::to_string(element.index_);
-            break;
-        case ElementType::Move:
-            content += ('S' + std::to_string(element.index_));
-            break;
-        case ElementType::Reduce:
-            content += ('r' + std::to_string(element.index_));
-            break;
-    }
-    return content;
-}
 
 int main(int argc, char *argv[]) {
 //    std::string file_path(R"(C:\Users\jgss9\Desktop\VCompiler\parser\test\test_2.txt)");

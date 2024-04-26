@@ -4,8 +4,10 @@
 #include<iostream>
 #include<string>
 #include<unordered_set>
+#include<unordered_map>
 #include<vector>
 #include<list>
+#include"token.hpp"
 #include"exception.hpp"
 #endif
 
@@ -25,7 +27,7 @@ enum class SymbolType {
     Non_Terminal,//非终结符
     Nil,//空
     Front,//前向搜索符号
-    Error
+    Error//初始化状态，即错误
 };
 //符号的抽象
 class Symbol {
@@ -41,7 +43,7 @@ public:
     Symbol()=delete;
     Symbol(string content, SymbolType symbol_type);
     Symbol(const Symbol &that)=default;
-
+    static Symbol make_fake_symbol(const Symbol& origin,const unordered_map<string,const Token&>& sym_token_mp);
     Symbol &operator=(const Symbol &that) = default;
     bool operator==(const Symbol &that) const;
 };
