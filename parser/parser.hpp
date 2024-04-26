@@ -60,9 +60,11 @@ public:
     //goto表
     unordered_map<int,unordered_map<Symbol,Element,Symbol::Hasher>> goto_;
 
+    Parser()=default;
     explicit Parser(const string& rules_file_name);
+    explicit Parser(vector<Rule>&& rules);
     //初始化Parser
-    void init();
+//    void init();
     //初始化生成式
     void generate_rules(const string& rules_file_name,bool verbose);
     //初始化终结符和非终结符
@@ -77,6 +79,7 @@ public:
     list<Token> load_tokens(const string& token_file_name);
     void analyze(const list<Symbol>& input,const unordered_map<string,const Token&>& sym_token_mp,bool verbose);
     void call(const string& token_file_name);
+    void call(const list<Token>& tokens);
     //判断某个非终结符能否退出空
     bool can_to_nil(const Symbol& non_terminal);
     //更新first集

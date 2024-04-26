@@ -33,36 +33,45 @@ string Element::to_string(const Element &element) {
 }
 
 Parser::Parser(const string &rules_file_name) : rules_file_name_(rules_file_name) {
-    init();
-}
-//初始化语法分析器
-void Parser::init() {
     generate_rules(rules_file_name_, true);
     generate_terminals_and_non_terminals(true);
     generate_firsts(true);
     generate_DFA(true);
     generate_LR1(true);
 }
+
+Parser::Parser(vector<Rule>&& rules):rules_(std::move(rules)){
+    generate_terminals_and_non_terminals(true);
+    generate_firsts(true);
+    generate_DFA(true);
+    generate_LR1(true);
+}
+//初始化语法分析器
+//void Parser::init() {
+//    generate_rules(rules_file_name_, true);
+//    generate_terminals_and_non_terminals(true);
+//    generate_firsts(true);
+//    generate_DFA(true);
+//    generate_LR1(true);
+//}
 //根据规则文件生成Rule对象
 void Parser::generate_rules(const string &rules_file_name, bool verbose = false) {
     try {
         ifstream rules_file(rules_file_name);
         if (!rules_file.is_open()) {
-            throw runtime_error("Can not open the file!");
+            throw Exception("Can not open the file:",rules_file_name);
         }
         string line;
-        int i=0;
         while (getline(rules_file, line)) {
             Rule rule = Rule::to_rule(static_cast<int>(rules_.size()), line);
             rules_.push_back(std::move(rule));
-            i+=1;
             cout<<line<<'\n';
         }
         rules_file.close();
         if (verbose) {
             print_rules();
         }
-    } catch (const exception &e) {
+    } catch (const Exception &e) {
         cerr << e.what() << '\n';
     }
 }
@@ -597,13 +606,9 @@ void Parser::call(const string &token_file_name) {
     analyze(syms,sym_token_mp,true);
 }
 
-
-int main(int argc, char *argv[]) {
-//    std::string file_path(R"(C:\Users\jgss9\Desktop\VCompiler\parser\test\test_2.txt)");
-    std::string file_path(R"(C:\Users\jgss9\Desktop\VCompiler\parser\rules\grammar_rules.txt)");
-    Parser parser(file_path);
-    parser.call(R"(C:\Users\jgss9\Desktop\VCompiler\cmake-build-debug\lexer\tokens.txt)");
-    return 0;
+void Parser::call(const list<Token>& tokens){
+    auto [syms,sym_token_mp]=std::move(tokens_to_syms(tokens));
+    analyze(syms,sym_token_mp,true);
 }
 
 

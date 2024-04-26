@@ -7,8 +7,10 @@ include_directories(
         ${CMAKE_CURRENT_LIST_DIR}/common
         ${CMAKE_CURRENT_LIST_DIR}/lexer
         ${CMAKE_CURRENT_LIST_DIR}/parser
+        ${CMAKE_CURRENT_LIST_DIR}/analyzer
 )
 
 add_subdirectory(common)
 add_subdirectory(lexer)
 add_subdirectory(parser)
+add_subdirectory(analyzer)

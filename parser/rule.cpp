@@ -1,5 +1,16 @@
 #include"rule.hpp"
 
+const char terminal_left_delimiter = '\'';
+const char terminal_right_delimiter = '\'';
+const char non_terminal_left_delimiter = '\"';
+const char non_terminal_right_delimiter = '\"';
+const string Nil="@";
+const string Front_Search="#";
+const string Item_Delimiter="\xA1\xA4";
+
+const Symbol NIL(Nil,SymbolType::Nil);
+const Symbol FRONT_SEARCH(Front_Search,SymbolType::Front);
+const Symbol ERROR("",SymbolType::Error);
 
 Rule::Rule(int index, Symbol &&left, vector<Symbol> &&right)
         : index_(index), left_(std::forward<Symbol>(left)), right_(std::forward<vector<Symbol>>(right)) {
