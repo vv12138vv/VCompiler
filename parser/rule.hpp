@@ -6,7 +6,7 @@
 #include<unordered_set>
 #include<vector>
 #include<list>
-#include"../common/exception.hpp"
+#include"exception.hpp"
 #endif
 
 using namespace std;

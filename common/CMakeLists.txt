@@ -1,1 +1,1 @@
-add_library(common exception.hpp exception.cpp)
+add_library(common STATIC exception.cpp token.cpp)

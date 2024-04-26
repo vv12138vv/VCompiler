@@ -12,7 +12,7 @@
 #include<tuple>
 
 #include"item_set.hpp"
-#include"../lexer/token.hpp"
+#include"token.hpp"
 
 #endif
 

@@ -1,8 +1,5 @@
-add_executable(parser
-        parser.hpp parser.cpp
-        rule.hpp rule.cpp
-        item_set.hpp item_set.cpp
-        ../lexer/token.hpp ../lexer/token.cpp
-)
+aux_source_directory(${CMAKE_CURRENT_LIST_DIR} PARSER_SRC)
+
+add_executable(parser ${PARSER_SRC})
 
 target_link_libraries(parser common)
