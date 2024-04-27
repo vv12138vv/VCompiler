@@ -1,6 +1,6 @@
 #include "analyzer.hpp"
 
-const unordered_set<char> ops{'+','*','='};
+const unordered_set<char> ops{'+','*','=','-'};
 
 ActionType Analyzer::to_action(const string &str) {
     auto idx = str.find("print");
@@ -14,6 +14,14 @@ ActionType Analyzer::to_action(const string &str) {
     idx=str.find('*');
     if(idx!=string::npos){
         return ActionType::Multiply;
+    }
+    idx=str.find('-');
+    if(idx!=string::npos){
+        return ActionType::Subtract;
+    }
+    idx=str.find('(');
+    if(idx!=string::npos){
+        return ActionType::Bracket;
     }
     return ActionType::Assign;
 }
@@ -199,6 +207,20 @@ void Analyzer::analyze(const list<Symbol>& input,const unordered_map<string,cons
                         }
                         case ActionType::Multiply:{
                             semantic_stack[semantic_stack.size()-1-2]*=semantic_stack[semantic_stack.size()-1];
+                            for(int i=0;i<2;i++){
+                                semantic_stack.pop_back();
+                            }
+                            break;
+                        }
+                        case ActionType::Subtract:{
+                            semantic_stack[semantic_stack.size()-1-2]-=semantic_stack[semantic_stack.size()-1];
+                            for(int i=0;i<2;i++){
+                                semantic_stack.pop_back();
+                            }
+                            break;
+                        }
+                        case ActionType::Bracket:{
+                            semantic_stack[semantic_stack.size()-1-2]=semantic_stack[semantic_stack.size()-1-1];
                             for(int i=0;i<2;i++){
                                 semantic_stack.pop_back();
                             }

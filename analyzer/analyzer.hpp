@@ -9,7 +9,9 @@ enum class ActionType {
     Init,//区分赋值和初始化
     Assign,
     Multiply,
-    Print
+    Subtract,
+    Bracket,
+    Print,
 };
 
 
