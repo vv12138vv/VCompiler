@@ -569,7 +569,7 @@ void Parser::analyze(const list<Symbol> &input,const unordered_map<string,const 
             if (verbose) {
                 auto print_analyze=[&]() {
                     string content;
-                    content += to_string(step) + '\t';
+                    content += to_string(step) + "\t\t";
                     //打印状态栈
                     for (const auto &state: state_stack) {
                         content += to_string(state);

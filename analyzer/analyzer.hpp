@@ -6,46 +6,37 @@
 
 enum class ActionType {
     Add,
+    Init,//区分赋值和初始化
     Assign,
-    Subtract,
     Multiply,
     Print
 };
 
 
-//从简单开始，每个符号只有一个属性即val
-
-class Action {
-public:
-    static const unordered_set<char> ops;
-    Symbol left_op_;
-    Symbol right_op_;
-    Symbol res_;
-    ActionType action_type_;
-
-    Action() = delete;
-
-    Action(Symbol left_op, Symbol right_op, Symbol res_,ActionType action_type);
-    static vector<Action> to_actions(const string& str);
-};
 
 
 class Analyzer {
-    using Semantic =unordered_map<int,vector<Action>>;//每个rule的idx对应的语义映射
+    using Semantic =unordered_map<int,ActionType>;//每个rule的idx对应的语义映射
 private:
     std::unique_ptr<Parser> parser_;
     Semantic semantics_;
 public:
     Analyzer() = delete;
     Analyzer(const string &rule_file_name);
+    //读取语法规则
     auto generate_rules(const string& rule_file_name);
+    //读取语义规则
+    auto generate_actions(const string& rule_file_name);
+    //生成语法和语义的映射
+    auto generate_semantics(const vector<ActionType>& actions);
+
     //查找左操作数
-    static Symbol find_left_op(const string& str,int i);
+    Symbol find_left_op(const string& str,int i);
     //查找右操作数
-    static Symbol find_right_op(const string& str,int i);
+    Symbol find_right_op(const string& str,int i);
 
-    static Symbol find_print_op(const string& str);
-
+    Symbol find_print_op(const string& str);
+    ActionType to_action(const string &str);
     void analyze(const list<Symbol>& syms,const unordered_map<string,const Token&>& sym_token_mp,bool verbose);
     void call(const string& token_file_name);
 };
