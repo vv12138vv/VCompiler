@@ -124,13 +124,6 @@ Symbol Analyzer::find_right_op(const string &str, int i) {
 
 
 
-//Symbol Analyzer::find_print_op(const string &str) {
-//    auto left_brace = str.find('<');
-//    auto dot_idx = str.find('.');
-//    string content = str.substr(left_brace + 1, dot_idx - 1 - left_brace);
-//    cout << content;
-//    return {content, SymbolType::Non_Terminal};
-//}
 
 
 Analyzer::Analyzer(const string &rule_file_name) {
@@ -141,7 +134,8 @@ Analyzer::Analyzer(const string &rule_file_name) {
 }
 
 //语义分析
-void Analyzer::analyze(const list<Symbol>& input,const unordered_map<string,const Token&>& sym_token_mp,bool verbose= false){
+vector<Form> Analyzer::analyze(const list<Symbol>& input,const unordered_map<string,const Token&>& sym_token_mp,bool verbose= false){
+    vector<Form> forms;
     try{
         list<Symbol> str=input;
         Symbol end(FRONT_SEARCH);
@@ -150,12 +144,13 @@ void Analyzer::analyze(const list<Symbol>& input,const unordered_map<string,cons
         list<int> state_stack;
         list<Symbol> symbol_stack;
         vector<int> semantic_stack;
-        list<string> val_stack;
+        vector<string> val_stack;
         state_stack.push_back(0);
         symbol_stack.push_back(FRONT_SEARCH);
         semantic_stack.push_back(INT_MAX);
         val_stack.emplace_back("_");
         int step=0;
+        int val_idx=0;
         bool is_acc=false;
         bool is_error=false;
         while(true){
@@ -176,8 +171,15 @@ void Analyzer::analyze(const list<Symbol>& input,const unordered_map<string,cons
                     if(it->second.type_==TokenType::Constant){
                         int num= stoi(top_sym.content_);
                         semantic_stack.push_back(num);
+                        //为了生成四元式
+                        string new_temp="t"+ to_string(val_idx);
+                        val_idx+=1;
+                        forms.emplace_back("=",top_sym.content_,"_",new_temp);
+                        val_stack.push_back(std::move(new_temp));
                     }else{
                         semantic_stack.push_back(INT_MAX);
+                        string new_temp="_";
+                        val_stack.push_back(std::move(new_temp));
                     }
                     str.pop_front();
                     break;
@@ -191,38 +193,63 @@ void Analyzer::analyze(const list<Symbol>& input,const unordered_map<string,cons
                     auto action=it->second;
                     switch (action) {
                         case ActionType::Assign:{
-                            //assign也可简化为不更改语义栈
+                            //assign可简化为不更改语义栈
+                            string new_temp="t"+ to_string(val_idx);
+                            val_idx+=1;
+                            forms.emplace_back("=",val_stack.back(),"_",new_temp);
+                            val_stack.pop_back();
+                            val_stack.push_back(std::move(new_temp));
                             break;
                         }
                         case ActionType::Init:{
-                            //init实际可以简化为不更改语义栈
+                            //init可简化为不更改语义栈
                             break;
                         }
                         case ActionType::Add:{
                             semantic_stack[semantic_stack.size()-1-2]+=semantic_stack[semantic_stack.size()-1];
+                            string new_temp="t"+ to_string(val_idx);
+                            val_idx+=1;
+                            forms.emplace_back("+",val_stack[val_stack.size()-1-2],val_stack[val_stack.size()-1],new_temp);
+                            val_stack[val_stack.size()-1-2]=new_temp;
                             for(int i=0;i<2;i++){
                                 semantic_stack.pop_back();
+                                val_stack.pop_back();
                             }
                             break;
                         }
                         case ActionType::Multiply:{
                             semantic_stack[semantic_stack.size()-1-2]*=semantic_stack[semantic_stack.size()-1];
+                            string new_temp="t"+ to_string(val_idx);
+                            val_idx+=1;
+                            forms.emplace_back("*",val_stack[val_stack.size()-1-2],val_stack[val_stack.size()-1],new_temp);
+                            val_stack[val_stack.size()-1-2]=new_temp;
                             for(int i=0;i<2;i++){
                                 semantic_stack.pop_back();
+                                val_stack.pop_back();
                             }
                             break;
                         }
                         case ActionType::Subtract:{
                             semantic_stack[semantic_stack.size()-1-2]-=semantic_stack[semantic_stack.size()-1];
+                            string new_temp="t"+ to_string(val_idx);
+                            val_idx+=1;
+                            forms.emplace_back("-",val_stack[val_stack.size()-1-2],val_stack[val_stack.size()-1],new_temp);
+                            val_stack[val_stack.size()-1-2]=new_temp;
                             for(int i=0;i<2;i++){
                                 semantic_stack.pop_back();
+                                val_stack.pop_back();
                             }
                             break;
                         }
                         case ActionType::Bracket:{
                             semantic_stack[semantic_stack.size()-1-2]=semantic_stack[semantic_stack.size()-1-1];
+                            string new_temp="t"+ to_string(val_idx);
+                            val_idx+=1;
+                            forms.emplace_back("=",val_stack[val_stack.size()-1-1],"_",new_temp);
+                            val_stack[val_stack.size()-1-2]=new_temp;
                             for(int i=0;i<2;i++){
                                 semantic_stack.pop_back();
+                                val_stack.pop_back();
                             }
                             break;
                         }
@@ -278,7 +305,7 @@ void Analyzer::analyze(const list<Symbol>& input,const unordered_map<string,cons
                     //打印语义栈
                     for(int num:semantic_stack){
                         if(num==INT_MAX){
-                            content+="_";
+                            content+="@";
                         }else{
                             content+= to_string(num);
                         }
@@ -302,18 +329,33 @@ void Analyzer::analyze(const list<Symbol>& input,const unordered_map<string,cons
     }catch (const Exception& e){
         cerr << e.what() << '\n';
     }
+    return forms;
 }
 
 void Analyzer::call(const std::string &token_file_name) {
     list<Token> tokens=std::move(parser_->load_tokens(token_file_name));
     auto [syms,sym_token_mp]=std::move(parser_->tokens_to_syms(tokens));
-    analyze(syms,sym_token_mp,true);
+    auto forms=analyze(syms,sym_token_mp,true);
+    print_forms(forms);
+}
+
+void Analyzer::print_forms(const vector<Form> &forms) {
+    string res;
+    for(const auto& form:forms){
+        res+=Form::to_string(form)+'\n';
+    }
+    cout<<res;
+    return;
 }
 
 
-
-
-
-
-
-
+string Form::to_string(const Form &form) {
+    string res;
+    res+='(';
+    res+=form.op_+',';
+    res+=form.op1_+',';
+    res+=form.op2_+',';
+    res+=form.res_;
+    res+=')';
+    return res;
+}
