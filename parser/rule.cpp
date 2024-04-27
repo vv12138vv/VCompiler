@@ -97,31 +97,6 @@ bool Symbol::operator==(const Symbol &that) const {
     return content_ == that.content_ && symbol_type_ == that.symbol_type_;
 }
 
-Symbol Symbol::make_fake_symbol(const Symbol &origin, const unordered_map<string, const Token &> &sym_token_mp) {
-    Symbol fake_symbol=origin;
-    auto p=sym_token_mp.find(fake_symbol.content_);
-    if(p==sym_token_mp.end()){
-        return fake_symbol;
-    }
-    TokenType type=p->second.type_;
-    switch(type){
-        case TokenType::Constant:
-            fake_symbol.content_="[constant]";
-            break;
-        case TokenType::Operator:
-            if(fake_symbol.content_!="->"&&fake_symbol.content_!="="){
-                fake_symbol.content_="[operator]";
-            }
-            break;
-        case TokenType::Identifier:
-            fake_symbol.content_="[identifier]";
-            break;
-        case TokenType::Delimiter:
-            break;
-        case TokenType::Keyword:
-            break;
-    }
-    return fake_symbol;
-}
+
 
 

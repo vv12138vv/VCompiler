@@ -86,7 +86,10 @@ public:
     bool update_first_set(const Symbol& non_terminal,const Symbol& sym);
     int is_existed(const ItemSet& item_set);
     vector<int> find_acc_state();
+    //将token转symbol
     pair<list<Symbol>,unordered_map<string,const Token&>> tokens_to_syms(const list<Token>& tokens);
+    //制作fake_symbol，用于LR1分析
+    Symbol make_fake_symbol(const Symbol& origin,const unordered_map<string,const Token&>& sym_token_mp);
     void print_terminals();
     void print_non_terminals();
     void print_rules();

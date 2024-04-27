@@ -472,6 +472,37 @@ void Parser::print_goto_and_action() {
     cout << '\n';
 }
 
+Symbol Parser::make_fake_symbol(const Symbol &origin, const unordered_map<string, const Token &> &sym_token_mp) {
+    Symbol fake_symbol=origin;
+    auto p=sym_token_mp.find(fake_symbol.content_);
+    if(p==sym_token_mp.end()){
+        return fake_symbol;
+    }
+    TokenType type=p->second.type_;
+    switch(type){
+        case TokenType::Constant:
+            fake_symbol.content_="[constant]";
+            break;
+        case TokenType::Operator:
+//            if(fake_symbol.content_!="->"&&fake_symbol.content_!="="){
+//                fake_symbol.content_="[operator]";
+//            }
+            if(!terminals_.count(fake_symbol)){
+                fake_symbol.content_="[operator]";
+            }
+            break;
+        case TokenType::Identifier:
+            fake_symbol.content_="[identifier]";
+            break;
+        case TokenType::Delimiter:
+            break;
+        case TokenType::Keyword:
+            break;
+    }
+    return fake_symbol;
+}
+
+
 void Parser::analyze(const list<Symbol> &input,const unordered_map<string,const Token&>& sym_token_mp, bool verbose = false) {//todo lr1分析
     //初始化输入串
     try {
@@ -484,7 +515,6 @@ void Parser::analyze(const list<Symbol> &input,const unordered_map<string,const 
         state_stack.push_back(0);
         symbol_stack.push_back(FRONT_SEARCH);
         int step = 0;
-        int pos = 0;
         bool is_acc = false;
         bool is_error = false;
         while (true) {
@@ -492,7 +522,7 @@ void Parser::analyze(const list<Symbol> &input,const unordered_map<string,const 
             Symbol top_sym = str.front();
             Element element;
             if (top_sym.symbol_type_ == SymbolType::Terminal||top_sym.symbol_type_==SymbolType::Front) {
-                Symbol fake_sym=Symbol::make_fake_symbol(top_sym,sym_token_mp);
+                Symbol fake_sym=make_fake_symbol(top_sym,sym_token_mp);
                 element=action_[cur_state][fake_sym];
             } else if (top_sym.symbol_type_ == SymbolType::Non_Terminal) {
                 element = goto_[cur_state][top_sym];

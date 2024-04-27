@@ -1,4 +1,10 @@
-set(ANALYZER_SRC ./analyzer.cpp ../parser/parser.cpp ../parser/rule.cpp ../parser/item_set.cpp)
+set(ANALYZER_SRC
+        ./main.cpp
+        ./analyzer.cpp
+        ../parser/parser.cpp
+        ../parser/rule.cpp
+        ../parser/item_set.cpp
+    )
 
 add_executable(analyzer ${ANALYZER_SRC})
 

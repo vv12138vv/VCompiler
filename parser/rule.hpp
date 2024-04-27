@@ -44,7 +44,6 @@ public:
     Symbol()=delete;
     Symbol(string content, SymbolType symbol_type);
     Symbol(const Symbol &that)=default;
-    static Symbol make_fake_symbol(const Symbol& origin,const unordered_map<string,const Token&>& sym_token_mp);
     Symbol &operator=(const Symbol &that) = default;
     bool operator==(const Symbol &that) const;
 };
