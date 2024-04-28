@@ -16,11 +16,8 @@
 //}
 
 int main(){
-    string rule_file_name(R"(C:\Users\jgss9\Desktop\VCompiler\lexer\test\lex-rule.txt)");
-    string key_words_file_name(R"(C:\Users\jgss9\Desktop\VCompiler\lexer\test\key_words.txt)");
-    //test parser
-//    string code_file_name(R"(C:\Users\jgss9\Desktop\VCompiler\lexer\test\test_code.txt)");
-    //test analyzer
+    string rule_file_name(R"(C:\Users\jgss9\Desktop\VCompiler\lexer\rules\lex_rule.txt)");
+    string key_words_file_name(R"(C:\Users\jgss9\Desktop\VCompiler\lexer\rules\key_words.txt)");
     string code_file_name(R"(C:\Users\jgss9\Desktop\VCompiler\analyzer\test\test_code_1.txt)");
     Lexer lexer(rule_file_name,key_words_file_name);
     list<Token> tokens=lexer.analyze(code_file_name);

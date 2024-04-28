@@ -335,11 +335,12 @@ vector<Form> Analyzer::analyze(const list<Symbol>& input,const unordered_map<str
     return forms;
 }
 
-void Analyzer::call(const std::string &token_file_name) {
+vector<Form> Analyzer::call(const std::string &token_file_name) {
     list<Token> tokens=std::move(parser_->load_tokens(token_file_name));
     auto [syms,sym_token_mp]=std::move(parser_->tokens_to_syms(tokens));
     auto forms=analyze(syms,sym_token_mp,true);
     print_forms(forms);
+    return forms;
 }
 
 void Analyzer::print_forms(const vector<Form> &forms) {

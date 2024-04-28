@@ -59,7 +59,7 @@ public:
 
     vector<Form> analyze(const list<Symbol> &syms, const unordered_map<string, const Token &> &sym_token_mp, bool verbose);
 
-    void call(const string &token_file_name);
+    vector<Form> call(const string &token_file_name);
 
 
     static void save_to(const string& file_name,const vector<Form>& forms);
