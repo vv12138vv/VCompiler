@@ -6,7 +6,6 @@
 #include<cassert>
 #include"queue"
 
-#endif
 
 using namespace std;
 
@@ -73,3 +72,4 @@ public:
     void fill();
     static string to_string(const ItemSet& item_set);
 };
+#endif

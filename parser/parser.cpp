@@ -567,6 +567,9 @@ void Parser::analyze(const list<Symbol> &input,const unordered_map<string,const 
             }
             step += 1;
             if (verbose) {
+                if(step==1){
+                    cout<<"step\t\tstate_stack\t\tsymbol_stack\t\tstr\t\toperation\n";
+                }
                 auto print_analyze=[&]() {
                     string content;
                     content += to_string(step) + "\t\t";

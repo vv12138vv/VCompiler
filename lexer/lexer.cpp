@@ -196,7 +196,7 @@ void Lexer::save_to(const string &file_name, const list<Token> &tokens) {
     } catch (const Exception &e) {
         cerr << e.what() << '\n';
     }
-    cout<<"save token file in "<<file_name<<" finished!\n";
+    cout<<"save tokens file in "<<file_name<<" finished!\n";
 }
 
 void Lexer::print_tokens(const list<Token> &tokens) {

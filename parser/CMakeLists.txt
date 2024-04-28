@@ -1,7 +1,11 @@
-#aux_source_directory(${CMAKE_CURRENT_LIST_DIR} PARSER_SRC)
+set(PARSER_LIB item_set.cpp parser.cpp rule.cpp)
 
-set(PARSER_SRC item_set.cpp parser.cpp rule.cpp main.cpp)
+add_library(parser_lib STATIC ${PARSER_LIB})
 
-add_executable(parser ${PARSER_SRC})
+target_link_libraries(parser_lib common)
 
-target_link_libraries(parser common)
+add_executable(parser main.cpp)
+
+target_link_libraries(parser parser_lib)
+
+

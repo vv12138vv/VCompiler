@@ -14,3 +14,9 @@ add_subdirectory(common)
 add_subdirectory(lexer)
 add_subdirectory(parser)
 add_subdirectory(analyzer)
+
+
+
+add_executable(VCompiler ${CMAKE_CURRENT_LIST_DIR}/main.cpp)
+
+target_link_libraries(VCompiler lexer_lib parser_lib)

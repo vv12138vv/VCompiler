@@ -1,6 +1,5 @@
 #include "exception.hpp"
 
-#include <utility>
 
 const char *Exception::what() const noexcept {
     return (error_msg_+error_args_).c_str();

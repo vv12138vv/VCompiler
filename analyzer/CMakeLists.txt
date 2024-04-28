@@ -1,11 +1,9 @@
-set(ANALYZER_SRC
-        ./main.cpp
-        ./analyzer.cpp
-        ../parser/parser.cpp
-        ../parser/rule.cpp
-        ../parser/item_set.cpp
-    )
+set(ANALYZE_LIB analyzer.cpp)
 
-add_executable(analyzer ${ANALYZER_SRC})
+add_library(analyzer_lib ${ANALYZE_LIB})
 
-target_link_libraries(analyzer common)
+target_link_libraries(analyzer_lib parser_lib)
+
+add_executable(analyzer main.cpp)
+
+target_link_libraries(analyzer analyzer_lib)

@@ -2,6 +2,7 @@
 
 #include <utility>
 
+const char Nil_char='@';
 //读取生成文件
 list<string> AutoMachine::read_rules(const string &rules_file_name, const std::string &label) {
     list<string> rules_string;
@@ -52,7 +53,7 @@ void AutoMachine::init() {
     //初始化字母表
     alphabets_ = unordered_set<char>(terminals_.begin(), terminals_.end());
     //添加空
-    alphabets_.insert(Nil);
+    alphabets_.insert(Nil_char);
 
     //对非终结符进行索引
     size_t index = 1;
@@ -257,7 +258,7 @@ unordered_set<int> AutoMachine::get_e_closure(const unordered_set<int> &t) {
     while(!help.empty()){
         int now=help.front();
         help.pop();
-        unordered_set<int> e_goto=nfa_[now][Nil];
+        unordered_set<int> e_goto=nfa_[now][Nil_char];
         for(int state:e_goto){
             if(!e_closure.count(state)){
                 e_closure.insert(state);
@@ -303,7 +304,7 @@ void AutoMachine::print_dfa() {
     cout<<"end_state:{"<<end_states<<"}\n";
     cout<<"state:\t";
     for(char alphabet:alphabets_){
-        if(alphabet!=Nil){
+        if(alphabet!=Nil_char){
             cout<<alphabet<<'\t';
         }
     }
@@ -311,7 +312,7 @@ void AutoMachine::print_dfa() {
     for(const auto& item:dfa_){
         cout<<item.first<<'\t';
         for(char alphabet:alphabets_){
-            if(alphabet==Nil){
+            if(alphabet==Nil_char){
                 continue;
             }
             if(dfa_[item.first].to_[alphabet]!=-1){
@@ -385,7 +386,7 @@ void AutoMachine::generate_terminals_and_non_terminals() {
                         for(char ch='0';ch<='9';ch++){
                             terminals_.insert(ch);
                         }
-                    }else if(right[0]==Nil) {
+                    }else if(right[0]==Nil_char) {
 
                     }else{
                         terminals_.insert(right[0]);
@@ -402,7 +403,7 @@ void AutoMachine::generate_terminals_and_non_terminals() {
                         for(char ch='0';ch<='9';ch++){
                             terminals_.insert(ch);
                         }
-                    }else if(right[0]==Nil){
+                    }else if(right[0]==Nil_char){
 
                     }else{
                         terminals_.insert(right[0]);
@@ -431,7 +432,7 @@ void AutoMachine::generate_terminals_and_non_terminals() {
                         for(char ch='0';ch<='9';ch++){
                             terminals_.insert(ch);
                         }
-                    }else if(right[0]==Nil){
+                    }else if(right[0]==Nil_char){
 
                     }else{
                         terminals_.insert(right[0]);
@@ -441,7 +442,7 @@ void AutoMachine::generate_terminals_and_non_terminals() {
                         for(char ch='0';ch<='9';ch++){
                             terminals_.insert(ch);
                         }
-                    }else if(right[0]==Nil){
+                    }else if(right[0]==Nil_char){
 
                     }else{
                         terminals_.insert(right[0]);

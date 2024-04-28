@@ -3,7 +3,8 @@
 
 #include<exception>
 #include<string>
-#endif
+
+
 using namespace std;
 
 class Exception: public exception{
@@ -15,3 +16,4 @@ public:
     Exception(string  error_msg,string  error_args);
 
 };
+#endif

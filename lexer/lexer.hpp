@@ -4,11 +4,9 @@
 
 #include<memory>
 
-
 #include "auto_machine.hpp"
-#include"token.hpp"
+#include "token.hpp"
 
-#endif
 
 
 
@@ -43,3 +41,4 @@ public:
 
 string trim(const string& str);
 
+#endif

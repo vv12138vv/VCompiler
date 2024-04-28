@@ -12,12 +12,11 @@
 #include<queue>
 #include<iomanip>
 
-#include"../common/exception.hpp"
+#include"exception.hpp"
 
-#endif
 using namespace std;
 
-const char Nil = '@';
+extern const char Nil_char;
 
 //DFA中的每个状态
 class DFAState {
@@ -147,3 +146,4 @@ public:
     void print_non_terminals();
     void print_content();
 };
+#endif

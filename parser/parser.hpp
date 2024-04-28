@@ -12,9 +12,7 @@
 #include<tuple>
 
 #include"item_set.hpp"
-#include"token.hpp"
 
-#endif
 
 using namespace std;
 
@@ -100,6 +98,4 @@ public:
     void print_goto_and_action();
 };
 
-
-
-
+#endif

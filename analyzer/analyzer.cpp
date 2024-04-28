@@ -86,40 +86,40 @@ auto Analyzer::generate_semantics(const vector<ActionType>& actions) {
 
 
 
-Symbol Analyzer::find_left_op(const string &str, int i) {
-    int j = i - 1;
-    int dot_idx = j;
-    while (j >= 0 && str[j] != '<') {
-        if (str[j] == '.') {
-            dot_idx = j;
-        }
-        j -= 1;
-    }
-    string content = str.substr(j + 1, dot_idx - j - 1);
-
-    return {content, SymbolType::Non_Terminal};
-}
-
-Symbol Analyzer::find_right_op(const string &str, int i) {
-    int j = i + 1;
-    int dot_idx = j;
-    int left_brace = j;
-    while (j < str.size()) {
-        if (str[j] == '.') {
-            dot_idx = j;
-            break;
-        } else if (str[j] == '<') {
-            left_brace = j;
-        }
-        j += 1;
-    }
-    string content = str.substr(left_brace + 1, dot_idx - 1 - left_brace);
-    SymbolType symbol_type;
-    if(parser_->non_terminals_.count(Symbol(content,SymbolType::Non_Terminal))){
-        return {content, SymbolType::Non_Terminal};
-    }
-    return {content,SymbolType::Terminal};
-}
+//Symbol Analyzer::find_left_op(const string &str, int i) {
+//    int j = i - 1;
+//    int dot_idx = j;
+//    while (j >= 0 && str[j] != '<') {
+//        if (str[j] == '.') {
+//            dot_idx = j;
+//        }
+//        j -= 1;
+//    }
+//    string content = str.substr(j + 1, dot_idx - j - 1);
+//
+//    return {content, SymbolType::Non_Terminal};
+//}
+//
+//Symbol Analyzer::find_right_op(const string &str, int i) {
+//    int j = i + 1;
+//    int dot_idx = j;
+//    int left_brace = j;
+//    while (j < str.size()) {
+//        if (str[j] == '.') {
+//            dot_idx = j;
+//            break;
+//        } else if (str[j] == '<') {
+//            left_brace = j;
+//        }
+//        j += 1;
+//    }
+//    string content = str.substr(left_brace + 1, dot_idx - 1 - left_brace);
+//    SymbolType symbol_type;
+//    if(parser_->non_terminals_.count(Symbol(content,SymbolType::Non_Terminal))){
+//        return {content, SymbolType::Non_Terminal};
+//    }
+//    return {content,SymbolType::Terminal};
+//}
 
 
 
@@ -289,6 +289,9 @@ vector<Form> Analyzer::analyze(const list<Symbol>& input,const unordered_map<str
             }
             step+=1;
             if(verbose){
+                if(step==1){
+                    cout<<"step\t\tstate_stack\t\tsymbol_stack\t\tsemantic_stack\t\tstr\t\toperation\n";
+                }
                 auto print_analyze=[&](){
                     string content;
                     content+= to_string(step)+"\t\t";
@@ -340,12 +343,29 @@ void Analyzer::call(const std::string &token_file_name) {
 }
 
 void Analyzer::print_forms(const vector<Form> &forms) {
+    cout<<"four form:\n";
     string res;
     for(const auto& form:forms){
         res+=Form::to_string(form)+'\n';
     }
-    cout<<res;
-    return;
+    cout<<res<<'\n';
+}
+
+void Analyzer::save_to(const string &file_name, const vector<Form> &forms) {
+    try{
+        ofstream output(file_name);
+        if(!output.is_open()){
+            throw Exception("Create file failed: ", file_name);
+        }
+        output<<"forms_count:"<<forms.size()<<'\n';
+        for(const auto& form:forms){
+            output<<Form::to_string(form)<<'\n';
+        }
+        output.close();
+    }catch (const Exception& e){
+        cerr<<e.what()<<'\n';
+    }
+    cout<<"save forms file in"<<file_name<<" finished!\n";
 }
 
 
@@ -359,3 +379,4 @@ string Form::to_string(const Form &form) {
     res+=')';
     return res;
 }
+

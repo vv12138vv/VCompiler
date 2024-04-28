@@ -10,7 +10,6 @@
 #include"token.hpp"
 #include"exception.hpp"
 
-#endif
 
 using namespace std;
 
@@ -72,3 +71,4 @@ public:
     static string to_string(const Rule &rule);
     void print() const;
 };
+#endif
