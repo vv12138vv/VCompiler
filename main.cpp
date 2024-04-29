@@ -37,6 +37,5 @@ int main(int argc,char *argv[]){
     if(!tokens_save_file.empty()){
         Lexer::save_to(tokens_save_file,tokens);
     }
-    getchar();
     return 0;
 }

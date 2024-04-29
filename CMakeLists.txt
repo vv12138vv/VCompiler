@@ -3,6 +3,8 @@ project(VCompiler)
 
 set(CMAKE_CXX_STANDARD 17)
 
+
+
 include_directories(
         ${CMAKE_CURRENT_LIST_DIR}/common
         ${CMAKE_CURRENT_LIST_DIR}/lexer

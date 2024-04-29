@@ -107,6 +107,7 @@ Item Item::move_pointer(const Item &item) {
     }catch(const Exception& e){
         cerr<<e.what()<<'\n';
     }
+    return new_item;
 }
 
 bool Item::is_reducible() const {
