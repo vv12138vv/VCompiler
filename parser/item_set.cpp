@@ -54,7 +54,7 @@ string Item::to_string(const Item &item) {
     string content;
     if(item.is_nil_rule()){
         content+=item.left_.content_+"->";
-        content+=Item_Delimieter;
+        content+=Item_Delimiter;
         content+=",{";
         for(const auto& sym:item.fronts_){
             content+=(sym.content_+',');
@@ -68,12 +68,12 @@ string Item::to_string(const Item &item) {
     content = item.left_.content_ + "->";
     for(int i=0;i<item.right_.size();i++){
         if(i==item.pointer_){
-            content+=Item_Delimieter;
+            content+=Item_Delimiter;
         }
         content+=item.right_[i].content_;
     }
     if(item.pointer_==item.right_.size()){
-        content+=Item_Delimieter;
+        content+=Item_Delimiter;
     }
     content+=",{";
     for(const auto& sym:item.fronts_){
@@ -107,6 +107,7 @@ Item Item::move_pointer(const Item &item) {
     }catch(const Exception& e){
         cerr<<e.what()<<'\n';
     }
+    return new_item;
 }
 
 bool Item::is_reducible() const {

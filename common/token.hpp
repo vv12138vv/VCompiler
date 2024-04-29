@@ -39,4 +39,5 @@ public:
     static string to_string(const Token& token);
     static vector<string> split(const string& str,char delimiter);
 };
+
 #endif

@@ -1,5 +1,11 @@
-aux_source_directory(${CMAKE_CURRENT_LIST_DIR} LEXER_SRC)
+set(LEXER_LIB auto_machine.cpp lexer.cpp)
 
-add_executable(lexer ${LEXER_SRC})
 
-target_link_libraries(lexer common)
+add_library(lexer_lib STATIC ${LEXER_LIB})
+
+target_link_libraries(lexer_lib common)
+
+
+add_executable(lexer main.cpp)
+
+target_link_libraries(lexer lexer_lib)

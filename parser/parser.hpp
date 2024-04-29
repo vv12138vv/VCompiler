@@ -12,9 +12,7 @@
 #include<tuple>
 
 #include"item_set.hpp"
-#include"token.hpp"
 
-#endif
 
 using namespace std;
 
@@ -60,9 +58,11 @@ public:
     //goto表
     unordered_map<int,unordered_map<Symbol,Element,Symbol::Hasher>> goto_;
 
+    Parser()=default;
     explicit Parser(const string& rules_file_name);
+    explicit Parser(vector<Rule>&& rules);
     //初始化Parser
-    void init();
+//    void init();
     //初始化生成式
     void generate_rules(const string& rules_file_name,bool verbose);
     //初始化终结符和非终结符
@@ -75,15 +75,19 @@ public:
     void generate_LR1(bool verbose);
     //加载词法分析生成的token
     list<Token> load_tokens(const string& token_file_name);
-    void analyze(const list<Symbol>& input,const unordered_map<string,TokenType>& sym_token_mp,bool verbose);
+    void analyze(const list<Symbol>& input,const unordered_map<string,const Token&>& sym_token_mp,bool verbose);
     void call(const string& token_file_name);
+    void call(const list<Token>& tokens);
     //判断某个非终结符能否退出空
     bool can_to_nil(const Symbol& non_terminal);
     //更新first集
     bool update_first_set(const Symbol& non_terminal,const Symbol& sym);
     int is_existed(const ItemSet& item_set);
     vector<int> find_acc_state();
-    tuple<list<Symbol>,unordered_map<string,TokenType>> tokens_to_syms(const list<Token>& tokens);
+    //将token转symbol
+    pair<list<Symbol>,unordered_map<string,const Token&>> tokens_to_syms(const list<Token>& tokens);
+    //制作fake_symbol，用于LR1分析
+    Symbol make_fake_symbol(const Symbol& origin,const unordered_map<string,const Token&>& sym_token_mp);
     void print_terminals();
     void print_non_terminals();
     void print_rules();
@@ -94,6 +98,4 @@ public:
     void print_goto_and_action();
 };
 
-
-
-
+#endif

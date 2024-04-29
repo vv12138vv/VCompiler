@@ -4,20 +4,22 @@
 #include<iostream>
 #include<string>
 #include<unordered_set>
+#include<unordered_map>
 #include<vector>
 #include<list>
+#include"token.hpp"
 #include"exception.hpp"
-#endif
+
 
 using namespace std;
 
-const char terminal_left_delimiter = '\'';
-const char terminal_right_delimiter = '\'';
-const char non_terminal_left_delimiter = '\"';
-const char non_terminal_right_delimiter = '\"';
-const string Nil="@";
-const string Front_Search="#";
-const string Item_Delimieter="\xA1\xA4";
+extern const char terminal_left_delimiter ;
+extern const char terminal_right_delimiter;
+extern const char non_terminal_left_delimiter;
+extern const char non_terminal_right_delimiter;
+extern const string Nil;
+extern const string Front_Search;
+extern const string Item_Delimiter;
 
 //二型文法中符号类型
 enum class SymbolType {
@@ -25,7 +27,7 @@ enum class SymbolType {
     Non_Terminal,//非终结符
     Nil,//空
     Front,//前向搜索符号
-    Error
+    Error//初始化状态，即错误
 };
 //符号的抽象
 class Symbol {
@@ -41,14 +43,13 @@ public:
     Symbol()=delete;
     Symbol(string content, SymbolType symbol_type);
     Symbol(const Symbol &that)=default;
-
     Symbol &operator=(const Symbol &that) = default;
     bool operator==(const Symbol &that) const;
 };
 
-const Symbol NIL(Nil,SymbolType::Nil);
-const Symbol FRONT_SEARCH(Front_Search,SymbolType::Front);
-const Symbol ERROR("",SymbolType::Error);
+extern const Symbol NIL;
+extern const Symbol FRONT_SEARCH;
+extern const Symbol ERROR;
 
 //产生式
 class Rule {
@@ -70,3 +71,4 @@ public:
     static string to_string(const Rule &rule);
     void print() const;
 };
+#endif
