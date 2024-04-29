@@ -15,7 +15,7 @@ add_subdirectory(lexer)
 add_subdirectory(parser)
 add_subdirectory(analyzer)
 
-
+add_compile_options(-std=c++17)
 
 add_executable(VCompiler ${CMAKE_CURRENT_LIST_DIR}/main.cpp)
 

@@ -40,12 +40,13 @@ Parser::Parser(const string &rules_file_name) : rules_file_name_(rules_file_name
     generate_LR1(true);
 }
 
-Parser::Parser(vector<Rule>&& rules):rules_(std::move(rules)){
+Parser::Parser(vector<Rule> &&rules) : rules_(std::move(rules)) {
     generate_terminals_and_non_terminals(true);
     generate_firsts(true);
     generate_DFA(true);
     generate_LR1(true);
 }
+
 //初始化语法分析器
 //void Parser::init() {
 //    generate_rules(rules_file_name_, true);
@@ -59,13 +60,13 @@ void Parser::generate_rules(const string &rules_file_name, bool verbose = false)
     try {
         ifstream rules_file(rules_file_name);
         if (!rules_file.is_open()) {
-            throw Exception("Can not open the file:",rules_file_name);
+            throw Exception("Can not open the file:", rules_file_name);
         }
         string line;
         while (getline(rules_file, line)) {
             Rule rule = Rule::to_rule(static_cast<int>(rules_.size()), line);
             rules_.push_back(std::move(rule));
-            cout<<line<<'\n';
+            cout << line << std::endl;
         }
         rules_file.close();
         if (verbose) {
@@ -75,6 +76,7 @@ void Parser::generate_rules(const string &rules_file_name, bool verbose = false)
         cerr << e.what() << '\n';
     }
 }
+
 //生成终极符与非终结符集
 void Parser::generate_terminals_and_non_terminals(bool verbose = false) {
     try {
@@ -118,7 +120,7 @@ void Parser::generate_firsts(bool verbose = false) {
             for (const auto &rule: rules_) {
                 int count = 0;
                 for (const auto &sym: rule.right_) {
-                    if (sym.symbol_type_ == SymbolType::Terminal || sym.symbol_type_==SymbolType::Nil) {
+                    if (sym.symbol_type_ == SymbolType::Terminal || sym.symbol_type_ == SymbolType::Nil) {
                         bool is_updated = update_first_set(rule.left_, sym);
                         if (is_updated) {
                             is_changed = true;
@@ -160,7 +162,7 @@ void Parser::generate_firsts(bool verbose = false) {
             }
         }
     } catch (const Exception &e) {
-        cout << e.what() << '\n';
+        cerr << e.what() << '\n';
     }
 }
 
@@ -282,7 +284,7 @@ void Parser::generate_DFA(bool verbose = false) {
 int Parser::is_existed(const ItemSet &item_set) {
     for (int i = 0; i < item_sets_.size(); i++) {
         if (item_sets_[i] == item_set) {
-            assert(i==item_sets_[i].state_);
+            assert(i == item_sets_[i].state_);
             return i;
         }
     }
@@ -291,7 +293,7 @@ int Parser::is_existed(const ItemSet &item_set) {
 
 
 void Parser::print_firsts() {
-    cout << "=========================firsts=========================" << '\n';
+    cout << "=========================firsts=========================" << std::endl;
     for (const auto &non_terminal: non_terminals_) {
         cout << non_terminal.first.content_ << ": ";
         string first = "{";
@@ -303,13 +305,13 @@ void Parser::print_firsts() {
             first.pop_back();
         }
         first += '}';
-        cout << first << '\n';
+        cout << first << std::endl;
     }
-    cout << '\n';
+    cout << std::endl;
 }
 
 void Parser::print_to_nil() {
-    cout << "=========================to_nil=========================" << '\n';
+    cout << "=========================to_nil=========================" << std::endl;
     for (const auto &item: non_terminals_) {
         cout << item.first.content_ << ": ";
         if (can_to_nil(item.first)) {
@@ -318,55 +320,56 @@ void Parser::print_to_nil() {
             cout << "false\n";
         }
     }
+    cout << std::endl;
 }
 
 void Parser::print_terminals() {
-    cout << "=========================terminal=========================" << '\n';
-    cout << "terminals_count: " << terminals_.size() << '\n';
+    cout << "=========================terminal=========================" << std::endl;
+    cout << "terminals_count: " << terminals_.size() << std::endl;
     for (const auto &terminal: terminals_) {
         cout << terminal.content_ << '\t';
     }
-    cout << '\n';
+    cout << std::endl;
 }
 
 void Parser::print_non_terminals() {
-    cout << "=========================non_terminal=========================" << '\n';
-    cout << "non_terminals_count: " << non_terminals_.size() << '\n';
+    cout << "=========================non_terminal=========================" << std::endl;
+    cout << "non_terminals_count: " << non_terminals_.size() << std::endl;
     for (const auto &item: non_terminals_) {
-        cout << item.first.content_ << '\t';
+        cout << item.first.content_ << std::endl;
     }
-    cout << '\n';
+    cout << std::endl;
 }
 
 void Parser::print_rules() {
-    cout << "=========================rules=========================" << '\n';
-    cout << "rules_count: " << rules_.size() << '\n';
+    cout << "=========================rules=========================" << std::endl;
+    cout << "rules_count: " << rules_.size() << std::endl;
     for (const auto &rule: rules_) {
         rule.print();
     }
-    cout << '\n';
+    cout << std::endl;
 }
 
 void Parser::print_item_sets() {
-    cout << "=========================item_sets=========================" << '\n';
-    cout << "item_sets_count: " << item_sets_.size() << "\n\n";
+    cout << "=========================item_sets=========================" << std::endl;
+    cout << "item_sets_count: " << item_sets_.size() << '\n' << std::endl;
     for (const auto &item_set: item_sets_) {
         cout << ItemSet::to_string(item_set);
-        cout << '\n';
+        cout << std::endl;
     }
 }
 
 void Parser::print_transfer() {
-    cout << "=========================transfer=========================" << '\n';
-    cout << "item_sets_count: " << item_sets_.size() << "\n\n";
+    cout << "=========================transfer=========================" << std::endl;
+    cout << "item_sets_count: " << item_sets_.size() << '\n' << std::endl;
     for (const auto &item: transfer_) {
-        cout << "state: " << item.first << "\n";
+        cout << "state: " << item.first << std::endl;
         for (const auto &sym: item.second) {
-            cout << sym.first.content_ << ":" << sym.second << "\n";
+            cout << sym.first.content_ << ":" << sym.second << std::endl;
         }
-        cout << '\n';
+        cout << std::endl;
     }
-    cout << '\n';
+    cout << std::endl;
 }
 
 //获得可接受的状态idxs
@@ -386,6 +389,7 @@ vector<int> Parser::find_acc_state() {
     }
     return res;
 }
+
 //生成LR1转移表
 void Parser::generate_LR1(bool verbose = false) {
     //初始化goto表与action表
@@ -439,8 +443,8 @@ void Parser::generate_LR1(bool verbose = false) {
 }
 
 void Parser::print_goto_and_action() {
-    cout << "=========================action and goto=========================" << '\n';
-    cout << "row count: " << action_.size() << '\n';
+    cout << "=========================action and goto=========================" << std::endl;
+    cout << "row count: " << action_.size() << std::endl;
     string col_head;
     col_head += "state\t";
     for (const auto &terminal: terminals_) {
@@ -453,7 +457,7 @@ void Parser::print_goto_and_action() {
         }
         col_head += (non_terminal.first.content_ + '\t');
     }
-    cout << col_head << '\n';
+    cout << col_head << std::endl;
     for (int i = 0; i < action_.size(); i++) {
         string row_content;
         row_content += to_string(i) + '\t';
@@ -467,32 +471,29 @@ void Parser::print_goto_and_action() {
             }
             row_content += Element::to_string(goto_[i][non_terminal.first]) + '\t';
         }
-        cout << row_content << '\n';
+        cout << row_content << std::endl;
     }
-    cout << '\n';
+    cout << std::endl;
 }
 
 Symbol Parser::make_fake_symbol(const Symbol &origin, const unordered_map<string, const Token &> &sym_token_mp) {
-    Symbol fake_symbol=origin;
-    auto p=sym_token_mp.find(fake_symbol.content_);
-    if(p==sym_token_mp.end()){
+    Symbol fake_symbol = origin;
+    auto p = sym_token_mp.find(fake_symbol.content_);
+    if (p == sym_token_mp.end()) {
         return fake_symbol;
     }
-    TokenType type=p->second.type_;
-    switch(type){
+    TokenType type = p->second.type_;
+    switch (type) {
         case TokenType::Constant:
-            fake_symbol.content_="[constant]";
+            fake_symbol.content_ = "[constant]";
             break;
         case TokenType::Operator:
-//            if(fake_symbol.content_!="->"&&fake_symbol.content_!="="){
-//                fake_symbol.content_="[operator]";
-//            }
-            if(!terminals_.count(fake_symbol)){
-                fake_symbol.content_="[operator]";
+            if (!terminals_.count(fake_symbol)) {
+                fake_symbol.content_ = "[operator]";
             }
             break;
         case TokenType::Identifier:
-            fake_symbol.content_="[identifier]";
+            fake_symbol.content_ = "[identifier]";
             break;
         case TokenType::Delimiter:
             break;
@@ -503,7 +504,8 @@ Symbol Parser::make_fake_symbol(const Symbol &origin, const unordered_map<string
 }
 
 
-void Parser::analyze(const list<Symbol> &input,const unordered_map<string,const Token&>& sym_token_mp, bool verbose = false) {//todo lr1分析
+void Parser::analyze(const list<Symbol> &input, const unordered_map<string, const Token &> &sym_token_mp,
+                     bool verbose = false) {//todo lr1分析
     //初始化输入串
     try {
         list<Symbol> str = input;
@@ -521,9 +523,9 @@ void Parser::analyze(const list<Symbol> &input,const unordered_map<string,const 
             int cur_state = state_stack.back();
             Symbol top_sym = str.front();
             Element element;
-            if (top_sym.symbol_type_ == SymbolType::Terminal||top_sym.symbol_type_==SymbolType::Front) {
-                Symbol fake_sym=make_fake_symbol(top_sym,sym_token_mp);
-                element=action_[cur_state][fake_sym];
+            if (top_sym.symbol_type_ == SymbolType::Terminal || top_sym.symbol_type_ == SymbolType::Front) {
+                Symbol fake_sym = make_fake_symbol(top_sym, sym_token_mp);
+                element = action_[cur_state][fake_sym];
             } else if (top_sym.symbol_type_ == SymbolType::Non_Terminal) {
                 element = goto_[cur_state][top_sym];
             }
@@ -537,8 +539,8 @@ void Parser::analyze(const list<Symbol> &input,const unordered_map<string,const 
                 case ElementType::Reduce: {
                     const Rule &reduce_rule = rules_[element.index_];
                     int pop_size = static_cast<int>(reduce_rule.right_.size());
-                    if(reduce_rule.is_nil_rule()){
-                        pop_size=0;
+                    if (reduce_rule.is_nil_rule()) {
+                        pop_size = 0;
                     }
                     for (int i = 0; i < pop_size; i++) {
                         state_stack.pop_back();
@@ -567,10 +569,10 @@ void Parser::analyze(const list<Symbol> &input,const unordered_map<string,const 
             }
             step += 1;
             if (verbose) {
-                if(step==1){
-                    cout<<"step\t\tstate_stack\t\tsymbol_stack\t\tstr\t\toperation\n";
+                if (step == 1) {
+                    cout << "step\t\tstate_stack\t\tsymbol_stack\t\tstr\t\toperation\n";
                 }
-                auto print_analyze=[&]() {
+                auto print_analyze = [&]() {
                     string content;
                     content += to_string(step) + "\t\t";
                     //打印状态栈
@@ -588,7 +590,7 @@ void Parser::analyze(const list<Symbol> &input,const unordered_map<string,const 
                     }
                     content += "\t\t";
                     content += Element::to_string(element);
-                    cout << content << '\n';
+                    cout << content << std::endl;
                 };
                 print_analyze();
             }
@@ -620,28 +622,28 @@ list<Token> Parser::load_tokens(const string &token_file_name) {
     return tokens;
 }
 
-pair<list<Symbol>,unordered_map<string,const Token&>> Parser::tokens_to_syms(const list<Token> &tokens) {
+pair<list<Symbol>, unordered_map<string, const Token &>> Parser::tokens_to_syms(const list<Token> &tokens) {
     list<Symbol> syms;
-    unordered_map<string,const Token&> sym_token_mp;
+    unordered_map<string, const Token &> sym_token_mp;
     for (const Token &token: tokens) {
         string content;
-        SymbolType symbol_type=SymbolType::Terminal;
+        SymbolType symbol_type = SymbolType::Terminal;
         content = token.value_;
         syms.emplace_back(content, symbol_type);
-        sym_token_mp.insert({content,token});
+        sym_token_mp.insert({content, token});
     }
-    return {syms,sym_token_mp};
+    return {syms, sym_token_mp};
 }
 
 void Parser::call(const string &token_file_name) {
-    list<Token> tokens= std::move(load_tokens(token_file_name));
-    auto [syms,sym_token_mp]= std::move(tokens_to_syms(tokens));
-    analyze(syms,sym_token_mp,true);
+    list<Token> tokens = std::move(load_tokens(token_file_name));
+    auto [syms, sym_token_mp] = std::move(tokens_to_syms(tokens));
+    analyze(syms, sym_token_mp, true);
 }
 
-void Parser::call(const list<Token>& tokens){
-    auto [syms,sym_token_mp]=std::move(tokens_to_syms(tokens));
-    analyze(syms,sym_token_mp,true);
+void Parser::call(const list<Token> &tokens) {
+    auto [syms, sym_token_mp] = std::move(tokens_to_syms(tokens));
+    analyze(syms, sym_token_mp, true);
 }
 
 

@@ -254,7 +254,7 @@ vector<Form> Analyzer::analyze(const list<Symbol>& input,const unordered_map<str
                             break;
                         }
                         case ActionType::Print:{
-                            cout<<"Print action: "<<semantic_stack.back()<<'\n';
+                            cout<<"Print action: "<<semantic_stack.back()<<std::endl;
                             break;
                         }
                     }
@@ -320,7 +320,7 @@ vector<Form> Analyzer::analyze(const list<Symbol>& input,const unordered_map<str
                     }
                     content+="\t\t";
                     content+=Element::to_string(element);
-                    cout<<content<<'\n';
+                    cout<<content<<std::endl;
                 };
                 print_analyze();
             }
@@ -349,7 +349,7 @@ void Analyzer::print_forms(const vector<Form> &forms) {
     for(const auto& form:forms){
         res+=Form::to_string(form)+'\n';
     }
-    cout<<res<<'\n';
+    cout<<res<<std::endl;
 }
 
 void Analyzer::save_to(const string &file_name, const vector<Form> &forms) {
@@ -358,9 +358,9 @@ void Analyzer::save_to(const string &file_name, const vector<Form> &forms) {
         if(!output.is_open()){
             throw Exception("Create file failed: ", file_name);
         }
-        output<<"forms_count:"<<forms.size()<<'\n';
+        output<<"forms_count:"<<forms.size()<<std::endl;
         for(const auto& form:forms){
-            output<<Form::to_string(form)<<'\n';
+            output<<Form::to_string(form)<<std::endl;
         }
         output.close();
     }catch (const Exception& e){

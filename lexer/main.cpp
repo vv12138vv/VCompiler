@@ -24,6 +24,7 @@ int main(int argc,char* argv[]){
     cmd_parser.add<string>("code_file_name",'c',"code file name",true,"");
     cmd_parser.add<string>("tokens_save_path",'s',"tokens save path",false,"");
     cmd_parser.parse_check(argc,argv);
+
     string rule_file_name=cmd_parser.get<string>("rule_file_name");
     string key_words_file_name=cmd_parser.get<string>("key_words_file_name");
     string code_file_name=cmd_parser.get<string>("code_file_name");
