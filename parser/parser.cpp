@@ -40,7 +40,10 @@ Parser::Parser(const string &rules_file_name) : rules_file_name_(rules_file_name
     generate_LR1(true);
 }
 
-Parser::Parser(vector<Rule> &&rules) : rules_(std::move(rules)) {
+Parser::Parser(vector<Rule> && rules)
+:
+
+rules_ (std::move(rules)) {
     generate_terminals_and_non_terminals(true);
     generate_firsts(true);
     generate_DFA(true);
@@ -505,7 +508,7 @@ Symbol Parser::make_fake_symbol(const Symbol &origin, const unordered_map<string
 
 
 void Parser::analyze(const list<Symbol> &input, const unordered_map<string, const Token &> &sym_token_mp,
-                     bool verbose = false) {//todo lr1分析
+                     bool verbose = false) {
     //初始化输入串
     try {
         list<Symbol> str = input;
@@ -519,6 +522,7 @@ void Parser::analyze(const list<Symbol> &input, const unordered_map<string, cons
         int step = 0;
         bool is_acc = false;
         bool is_error = false;
+        string error_msg;
         while (true) {
             int cur_state = state_stack.back();
             Symbol top_sym = str.front();
@@ -563,14 +567,17 @@ void Parser::analyze(const list<Symbol> &input, const unordered_map<string, cons
                     str.pop_front();
                     break;
                 }
-                case ElementType::Error:
+                case ElementType::Error:{
                     is_error = true;
+                    auto token=sym_token_mp.find(top_sym.content_)->second;
+                    error_msg="Unexpected symbol: "+top_sym.content_+" in line: "+ to_string(token.line_);
                     break;
+                }
             }
             step += 1;
             if (verbose) {
                 if (step == 1) {
-                    cout << "step\t\tstate_stack\t\tsymbol_stack\t\tstr\t\toperation\n";
+                    cout << "step\t\tstate_stack\t\tsymbol_stack\t\tstr\t\toperation" << std::endl;
                 }
                 auto print_analyze = [&]() {
                     string content;
@@ -597,6 +604,13 @@ void Parser::analyze(const list<Symbol> &input, const unordered_map<string, cons
             if (is_acc || is_error) {
                 break;
             }
+        }
+        if(is_error){
+            cout<<'\n';
+            cerr<<error_msg<<endl;
+        }else if(is_acc){
+            cout<<endl;
+            cout<<"Analyze successfully"<<endl;
         }
     } catch (const Exception &e) {
         cerr << e.what() << '\n';

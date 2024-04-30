@@ -33,9 +33,9 @@ int main(int argc,char *argv[]){
     Lexer lexer(lexer_rules_file,key_words_file);
     Parser parser(grammar_rules_file);
     list<Token> tokens=lexer.analyze(code_file);
-    parser.call(tokens);
     if(!tokens_save_file.empty()){
         Lexer::save_to(tokens_save_file,tokens);
     }
+    parser.call(tokens);
     return 0;
 }
