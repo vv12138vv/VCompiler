@@ -34,9 +34,9 @@ int main(int argc,char* argv[]){
     }
     Lexer lexer(rule_file_name,key_words_file_name);
     list<Token> tokens=lexer.analyze(code_file_name);
+    Lexer::print_tokens(tokens);
     if(!tokens_save_path.empty()){
         Lexer::save_to(tokens_save_path,tokens);
     }
-    Lexer::print_tokens(tokens);
     return 0;
 }

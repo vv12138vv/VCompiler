@@ -419,7 +419,7 @@ void Parser::generate_LR1(bool verbose = false) {
                     //指定规约式子序号
                     action_[item_set.state_][front] = Element(ElementType::Reduce, item.index_);
                 }
-            } else {//todo some fault
+            } else {
                 Symbol trans_sym = item.next_sym();
                 try {
                     if (trans_sym.symbol_type_ != SymbolType::Non_Terminal) {

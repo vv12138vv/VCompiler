@@ -52,23 +52,24 @@ Lexer::Lexer(const string &rules_file_name, const string &key_words_file_name) :
     auto_machines_.insert({LabelType::Operator, make_unique<AutoMachine>(rules_file_name, LabelType::Operator)});
     auto_machines_.insert({LabelType::Delimiter, make_unique<AutoMachine>(rules_file_name, LabelType::Delimiter)});
     auto_machines_.insert({LabelType::Identifier, make_unique<AutoMachine>(rules_file_name, LabelType::Identifier)});
-    auto_machines_.insert({LabelType::Scientific, make_unique<AutoMachine>(rules_file_name, LabelType::Scientific)});
+    auto_machines_.insert({LabelType::Constant, make_unique<AutoMachine>(rules_file_name, LabelType::Constant)});
 //    auto_machines_[LabelType::Operator]->print_content();
 //    auto_machines_[LabelType::Delimiter]->print_content();
 //    auto_machines_[LabelType::Identifier]->print_content();
-//    auto_machines_[LabelType::Scientific]->print_content();
+//    auto_machines_[LabelType::Constant]->print_content();
 
     //读取关键字
     read_key_words(key_words_file_name);
 }
 
 
-list<Token> Lexer::analyze(const std::string &file_name) {//todo 这里可能有错误处理
+list<Token> Lexer::analyze(const std::string &file_name) {
     list<Token> tokens;
     string code = std::move(preprocessing(file_name));
     size_t line = 1;
     int i = 0;
     string error_msg;
+    bool is_error=false;
     while (i<=code.size()-1) {
         char ch = static_cast<char>(code[i]);
         if (ch == '\n') {
@@ -83,7 +84,7 @@ list<Token> Lexer::analyze(const std::string &file_name) {//todo 这里可能有
         //切分出一个可能的token
         int j = find_word_end(code, i);
         string part = code.substr(i, j - i + 1);
-        int len = -1;
+        int len = 0;
         //首先使用Identifier状态机去检测
         len = auto_machines_[LabelType::Identifier]->analyze(part);
         if (len == -1) {//接受错误，即无法处于终止态
@@ -129,7 +130,7 @@ list<Token> Lexer::analyze(const std::string &file_name) {//todo 这里可能有
             continue;
         }
         //调用数字自动机去检测
-        len = auto_machines_[LabelType::Scientific]->analyze(part);
+        len = auto_machines_[LabelType::Constant]->analyze(part);
         if (len == -1) {
             error_msg = "[Line num:" + to_string(line) + "]: " + part + '\n';
             break;
@@ -142,9 +143,16 @@ list<Token> Lexer::analyze(const std::string &file_name) {//todo 这里可能有
             i = i + len;
             continue;
         }
+        if(len==0){
+            is_error=true;
+            error_msg="Unrecognized character: ";
+            error_msg+=ch;
+            error_msg+=" in line: "+ to_string(line);
+            break;
+        }
     }
-    if (!error_msg.empty()) {
-        cerr << error_msg << '\n';
+    if (is_error) {
+        cerr << error_msg <<std::endl;
     }
     return tokens;
 }

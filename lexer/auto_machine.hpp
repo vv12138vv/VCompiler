@@ -57,7 +57,7 @@ using Rule_ = pair<string, string>;
 
 //文件输入中不同类别产生式的Tag
 enum class LabelType {
-    Scientific,
+    Constant,
     Delimiter,
     Operator,
     Identifier,
@@ -65,7 +65,7 @@ enum class LabelType {
 
 static unordered_map<LabelType, string> label_mp{
         {LabelType::Delimiter,  "[delimiter]"},
-        {LabelType::Scientific, "[scientific]"},
+        {LabelType::Constant,   "[constant]"},
         {LabelType::Operator,   "[operator]"},
         {LabelType::Identifier, "[identifier]"}
 };

@@ -155,7 +155,7 @@ void AutoMachine::make_nfa(int end) {
                         move[ch].insert(end);
                     }
                     break;
-                case LabelType::Scientific:
+                case LabelType::Constant:
                     if (rule.second.length() == 1) {
                         char ch = rule.second[0];
                         if (ch == 'd') {
@@ -426,7 +426,7 @@ void AutoMachine::generate_terminals_and_non_terminals() {
                     non_terminals_.insert(right[1]);
                 }
                 break;
-            case LabelType::Scientific:
+            case LabelType::Constant:
                 if(right.length()==1){
                     if(right[0]=='d'){
                         for(char ch='0';ch<='9';ch++){
