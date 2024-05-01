@@ -48,6 +48,7 @@ public:
     //对给定tokens流进行分析
     vector<Form> analyze(const list<Symbol> &syms, const unordered_map<string, const Token &> &sym_token_mp, bool verbose);
     vector<Form> call(const string &token_file_name);
+    vector<Form> call(const list<Token>& tokens);
     //保存生产的四元式
     static void save_to(const string& file_name,const vector<Form>& forms);
     //打印四元式

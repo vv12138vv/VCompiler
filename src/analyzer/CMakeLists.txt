@@ -6,4 +6,4 @@ target_link_libraries(analyzer_lib parser_lib)
 
 add_executable(analyzer main.cpp)
 
-target_link_libraries(analyzer analyzer_lib)
+target_link_libraries(analyzer analyzer_lib lexer_lib)

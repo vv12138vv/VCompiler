@@ -6,19 +6,19 @@ set(CMAKE_CXX_STANDARD 17)
 
 
 include_directories(
-        ${CMAKE_CURRENT_LIST_DIR}/common
-        ${CMAKE_CURRENT_LIST_DIR}/lexer
-        ${CMAKE_CURRENT_LIST_DIR}/parser
-        ${CMAKE_CURRENT_LIST_DIR}/analyzer
+        src/common
+        src/lexer
+        src/parser
+        src/analyzer
 )
 
-add_subdirectory(common)
-add_subdirectory(lexer)
-add_subdirectory(parser)
-add_subdirectory(analyzer)
+add_subdirectory(src/common)
+add_subdirectory(src/lexer)
+add_subdirectory(src/parser)
+add_subdirectory(src/analyzer)
 
 add_compile_options(-std=c++17)
 
-add_executable(VCompiler ${CMAKE_CURRENT_LIST_DIR}/main.cpp)
+add_executable(VCompiler src/main.cpp)
 
 target_link_libraries(VCompiler lexer_lib parser_lib)
