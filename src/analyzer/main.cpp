@@ -24,15 +24,7 @@ int main(int argc,char *argv[]){
     if(!tokens_save_file.empty()){
         Lexer::save_to(tokens_save_file,tokens);
     }
-    analyzer.call(tokens);
+    auto forms=analyzer.call(tokens);
+    Analyzer::print_forms(forms);
     return 0;
 }
-//
-//int main(){
-//    string rule_file_name(R"(C:\Users\jgss9\Desktop\VCompiler\src\analyzer\rules\rules.txt)");
-//    Analyzer analyzer(rule_file_name);
-//    string token_file_name(R"(C:\Users\jgss9\Desktop\VCompiler\cmake-build-debug\lexer\tokens.txt)");
-//    auto forms=analyzer.call(token_file_name);
-//    Analyzer::save_to("./forms.txt",forms);
-//    return 0;
-//}

@@ -507,25 +507,50 @@ int AutoMachine::move_to(char ch, int cur_state) {
     return -1;
 }
 
-//返回自动机可接受的数量，0则表示一个字符都无法接收，-1表示出现错误，其余整数为可接受的自动机可接受的数量
+//返回自动机可接受的数量，0则表示一个字符都无法接收
+//int AutoMachine::analyze(const std::string &part) {
+//    int len=0;
+//    char ch=static_cast<char>(part[0]);
+//    int state= move_to(ch,0);
+//    int pre_state=0;
+//    if(state==-1){
+//        return 0;
+//    }
+//    while(state!=-1){
+//        len+=1;
+//        ch=static_cast<char>(part[len]);
+//        pre_state=state;
+//        state= move_to(ch,state);
+//    }
+//    if(!dfa_end_states_.count(pre_state)){
+//        return -1;
+//    }
+//    return len;
+//}
+
 int AutoMachine::analyze(const std::string &part) {
     int len=0;
+    int acc_max=0;
     char ch=static_cast<char>(part[0]);
-    int state= move_to(ch,0);
-    int pre_state=0;
+    int state=move_to(ch,0);
     if(state==-1){
         return 0;
     }
-    while(state!=-1){
-        len+=1;
-        ch=static_cast<char>(part[len]);
-        pre_state=state;
+    len+=1;
+    if(dfa_end_states_.count(state)){
+        acc_max=max(acc_max,len);
+    }
+    while(true){
+        ch =static_cast<char>(part[len]);
         state= move_to(ch,state);
+        if(state==-1){
+            break;
+        }
+        len+=1;
+        if(dfa_end_states_.count(state)){
+            acc_max=max(acc_max,len);
+        }
     }
-    if(!dfa_end_states_.count(pre_state)){
-        return -1;
-    }
-    return len;
+    return acc_max;
 }
-
 
