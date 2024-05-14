@@ -517,8 +517,10 @@ void Parser::analyze(const list<Symbol> &input, const unordered_map<string, cons
         //初始化状态栈与符号栈,为了方便展示内容，不使用std::stack,使用std::list，其中尾部为栈顶，头部为栈底
         list<int> state_stack;
         list<Symbol> symbol_stack;
+        list<TreeNode*> tree_node_stack;
         state_stack.push_back(0);
         symbol_stack.push_back(FRONT_SEARCH);
+        tree_node_stack.push_back(new TreeNode(Front_Search, nullptr));
         int step = 0;
         bool is_acc = false;
         bool is_error = false;
@@ -537,6 +539,7 @@ void Parser::analyze(const list<Symbol> &input, const unordered_map<string, cons
                 case ElementType::Move: {
                     state_stack.push_back(element.index_);
                     symbol_stack.push_back(top_sym);
+                    tre
                     str.pop_front();
                     break;
                 }

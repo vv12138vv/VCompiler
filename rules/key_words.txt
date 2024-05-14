@@ -11,3 +11,4 @@ JOIN
 AND
 OR
 NOT
+IN
