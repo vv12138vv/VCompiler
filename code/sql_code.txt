@@ -1,0 +1,1 @@
+SELECT student.score FROM student WHERE student.id<10;

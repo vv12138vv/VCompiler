@@ -9,13 +9,11 @@ include_directories(
         src/common
         src/lexer
         src/parser
-        src/analyzer
 )
 
 add_subdirectory(src/common)
 add_subdirectory(src/lexer)
 add_subdirectory(src/parser)
-add_subdirectory(src/analyzer)
 
 add_compile_options(-std=c++17)
 

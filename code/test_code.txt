@@ -1,9 +1,0 @@
-    fn func_name(arg1:i32,arg2:i16,arg3:f32)->void{
-    let a:f32=0.34e+1;
-    let num:i32=12121;
-    let num2:f64=.123;
-    let num3:plural=14+15i;
-    let num4:plural=12.1i;
-    return;//anotation
-    //test
-}
