@@ -74,18 +74,18 @@ struct TreeNode {
             return;
         }
         auto graph= agopen(const_cast<char*>("analyze_tree"),Agdirected,nullptr);
-        std::queue<const TreeNode*> q;
-        int id=0;
-        q.push(root);
+        std::queue<std::pair<const TreeNode*,int>> q;
+        q.push({root,0});
         while(!q.empty()){
             int n=q.size();
             while(n--){
-                auto t=q.front();
+                auto t=q.front().first;
+                auto level = q.front().second;
                 q.pop();
-                auto node= agnode(graph,const_cast<char*>((t->content_+std::to_string(id++)).c_str()),true);
+                auto node= agnode(graph,const_cast<char*>((t->content_+" level:"+std::to_string(level)).c_str()),true);
                 for(int i=t->kids_.size()-1;i>=0;i-=1){
-                    q.push(t->kids_[i]);
-                    auto node1= agnode(graph,const_cast<char*>((t->kids_[i]->content_+std::to_string(id++)).c_str()),true);
+                    q.push({t->kids_[i],level+1});
+                    auto node1= agnode(graph,const_cast<char*>((t->kids_[i]->content_+" level:"+std::to_string(level+1)).c_str()),true);
                     agedge(graph,node,node1,nullptr,true);
                 }
             }
