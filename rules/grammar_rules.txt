@@ -3,8 +3,8 @@
 "SqlStatement"->"UpdateStatement"
 "SqlStatement"->"DeleteStatement"
 "SelectStatement"->'SELECT'"SelectList"'FROM'"WhereStatement"';'
-"SelectList"->'[column_name]'"OtherColumns"
-"OtherColumns"->'[column_name]'"OtherColumns"
+"SelectList"->'[identifier]'"OtherColumns"
+"OtherColumns"->'[identifier]'"OtherColumns"
 "OtherColumns"->'@'
 "WhereStatement"->"Condition""OtherConditions"
 "Condition"->"Expression"

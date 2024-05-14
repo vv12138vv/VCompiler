@@ -9,3 +9,4 @@ target_link_libraries(lexer_lib common)
 add_executable(lexer main.cpp)
 
 target_link_libraries(lexer lexer_lib)
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin)

@@ -20,3 +20,5 @@ add_compile_options(-std=c++17)
 add_executable(VCompiler src/main.cpp)
 
 target_link_libraries(VCompiler lexer_lib parser_lib)
+
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin)
