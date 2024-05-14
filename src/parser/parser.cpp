@@ -507,8 +507,9 @@ Symbol Parser::make_fake_symbol(const Symbol &origin, const unordered_map<string
 }
 
 
-void Parser::analyze(const list<Symbol> &input, const unordered_map<string, const Token &> &sym_token_mp,
+TreeNode* Parser::analyze(const list<Symbol> &input, const unordered_map<string, const Token &> &sym_token_mp,
                      bool verbose = false) {
+    TreeNode* root=new TreeNode("ROOT");
     //初始化输入串
     try {
         list<Symbol> str = input;
@@ -520,7 +521,7 @@ void Parser::analyze(const list<Symbol> &input, const unordered_map<string, cons
         list<TreeNode*> tree_node_stack;
         state_stack.push_back(0);
         symbol_stack.push_back(FRONT_SEARCH);
-        tree_node_stack.push_back(new TreeNode(Front_Search, nullptr));
+        tree_node_stack.push_back(new TreeNode(FRONT_SEARCH.content_));
         int step = 0;
         bool is_acc = false;
         bool is_error = false;
@@ -539,7 +540,7 @@ void Parser::analyze(const list<Symbol> &input, const unordered_map<string, cons
                 case ElementType::Move: {
                     state_stack.push_back(element.index_);
                     symbol_stack.push_back(top_sym);
-                    tre
+                    tree_node_stack.push_back(new TreeNode(top_sym.content_));
                     str.pop_front();
                     break;
                 }
@@ -549,10 +550,15 @@ void Parser::analyze(const list<Symbol> &input, const unordered_map<string, cons
                     if (reduce_rule.is_nil_rule()) {
                         pop_size = 0;
                     }
+                    TreeNode* new_node= new TreeNode(reduce_rule.left_.content_);
                     for (int i = 0; i < pop_size; i++) {
                         state_stack.pop_back();
                         symbol_stack.pop_back();
+                        auto temp=tree_node_stack.back();
+                        tree_node_stack.pop_back();
+                        new_node->kids_.push_back(temp);
                     }
+                    tree_node_stack.push_back(new_node);
                     //为了统一处理，将规约的左部放入符号串头部
                     str.push_front(reduce_rule.left_);
                     break;
@@ -562,6 +568,10 @@ void Parser::analyze(const list<Symbol> &input, const unordered_map<string, cons
                         throw Exception("Acc Error", "");
                     }
                     is_acc = true;
+                    while(!tree_node_stack.empty()){
+                        root->kids_.push_back(tree_node_stack.back());
+                        tree_node_stack.pop_back();
+                    }
                     break;
                 }
                 case ElementType::Goto: {
@@ -618,6 +628,7 @@ void Parser::analyze(const list<Symbol> &input, const unordered_map<string, cons
     } catch (const Exception &e) {
         cerr << e.what() << '\n';
     }
+    return root;
 }
 
 //根据token文件加载tokes
@@ -655,12 +666,14 @@ pair<list<Symbol>, unordered_map<string, const Token &>> Parser::tokens_to_syms(
 void Parser::call(const string &token_file_name) {
     list<Token> tokens = std::move(load_tokens(token_file_name));
     auto [syms, sym_token_mp] = std::move(tokens_to_syms(tokens));
-    analyze(syms, sym_token_mp, true);
+    root_=analyze(syms, sym_token_mp, true);
+    TreeNode::layer_order(root_);
 }
 
 void Parser::call(const list<Token> &tokens) {
     auto [syms, sym_token_mp] = std::move(tokens_to_syms(tokens));
-    analyze(syms, sym_token_mp, true);
+    root_=analyze(syms, sym_token_mp, true);
+    TreeNode::layer_order(root_);
 }
 
 

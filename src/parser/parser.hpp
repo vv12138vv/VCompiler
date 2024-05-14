@@ -10,6 +10,7 @@
 #include<unordered_map>
 #include<stack>
 #include<tuple>
+#include<memory>
 
 #include"item_set.hpp"
 
@@ -40,6 +41,32 @@ public:
     static string to_string(const Element &element);
 };
 
+struct TreeNode {
+    vector<TreeNode*> kids_;
+    string content_;
+
+    TreeNode(const string &content) : content_(content) {}
+    static void layer_order(const TreeNode* root){
+        if(root==nullptr){
+            return;
+        }
+        std::queue<const TreeNode*> q;
+        q.push(root);
+        while(!q.empty()){
+            int n=q.size();
+            string part;
+            while(n--){
+                const TreeNode* t=q.front();
+                q.pop();
+                part+=t->content_+'\t';
+                for(int i=t->kids_.size()-1;i>=0;i-=1){
+                    q.push(t->kids_[i]);
+                }
+            }
+            std::cout<<part<<std::endl;
+        }
+    }
+};
 
 class Parser {
 public:
@@ -59,7 +86,7 @@ public:
     unordered_map<int, unordered_map<Symbol, Element, Symbol::Hasher>> action_;
     //goto表
     unordered_map<int, unordered_map<Symbol, Element, Symbol::Hasher>> goto_;
-
+    TreeNode* root_;
     Parser() = default;
 
     explicit Parser(const string &rules_file_name);
@@ -86,7 +113,7 @@ public:
     //加载词法分析生成的token
     list<Token> load_tokens(const string &token_file_name);
 
-    void analyze(const list<Symbol> &input, const unordered_map<string, const Token &> &sym_token_mp, bool verbose);
+    TreeNode* analyze(const list<Symbol> &input, const unordered_map<string, const Token &> &sym_token_mp, bool verbose);
 
     void call(const string &token_file_name);
 
@@ -125,12 +152,6 @@ public:
     void print_goto_and_action();
 };
 
-struct TreeNode {
-    TreeNode *parent_;
-    vector<TreeNode *> kids_;
-    string content_;
 
-    TreeNode(const string &content, TreeNode *parent=nullptr) : content_(content), parent_(parent) {}
-};
 
 #endif

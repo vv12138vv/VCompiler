@@ -37,5 +37,6 @@ int main(int argc,char *argv[]){
         Lexer::save_to(tokens_save_file,tokens);
     }
     parser.call(tokens);
+
     return 0;
 }
