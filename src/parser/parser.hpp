@@ -13,7 +13,9 @@
 #include<memory>
 
 #include"item_set.hpp"
-
+//graphviz的头文件
+#include"graphviz/gvc.h"
+#include"graphviz/cgraph.h"
 
 using namespace std;
 
@@ -54,7 +56,7 @@ struct TreeNode {
         q.push(root);
         while(!q.empty()){
             int n=q.size();
-            string part;
+            string part="{";
             while(n--){
                 const TreeNode* t=q.front();
                 q.pop();
@@ -63,8 +65,37 @@ struct TreeNode {
                     q.push(t->kids_[i]);
                 }
             }
+            part+="}";
             std::cout<<part<<std::endl;
         }
+    }
+
+    static void visualize_tree(const TreeNode* root){
+        if(root==nullptr){
+            return;
+        }
+        auto graph= agopen("analyze_tree",Agdirected,nullptr);
+        std::queue<const TreeNode*> q;
+        q.push(root);
+        while(!q.empty()){
+            size_t n=q.size();
+            while(n--){
+                auto t=q.front();
+                q.pop();
+                auto node= agnode(graph,const_cast<char*>(t->content_.c_str()),true);
+                for(int i=t->kids_.size()-1;i>=0;i-=1){
+                    q.push(t->kids_[i]);
+                    auto node1= agnode(graph,const_cast<char*>(t->kids_[i]->content_.c_str()),true);
+                    agedge(graph,node,node1,nullptr,true);
+                }
+            }
+        }
+        auto gvc=gvContext();
+        gvLayout(gvc,graph,"dot");
+        gvRenderFilename(gvc,graph,"png","analyze_tree.png");
+        gvFreeLayout(gvc,graph);
+        gvFreeContext(gvc);
+        agclose(graph);
     }
 };
 

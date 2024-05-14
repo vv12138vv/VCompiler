@@ -667,13 +667,13 @@ void Parser::call(const string &token_file_name) {
     list<Token> tokens = std::move(load_tokens(token_file_name));
     auto [syms, sym_token_mp] = std::move(tokens_to_syms(tokens));
     root_=analyze(syms, sym_token_mp, true);
-    TreeNode::layer_order(root_);
+    TreeNode::visualize_tree(root_);
 }
 
 void Parser::call(const list<Token> &tokens) {
     auto [syms, sym_token_mp] = std::move(tokens_to_syms(tokens));
     root_=analyze(syms, sym_token_mp, true);
-    TreeNode::layer_order(root_);
+    TreeNode::visualize_tree(root_);
 }
 
 
