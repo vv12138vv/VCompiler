@@ -14,8 +14,7 @@
 
 #include"item_set.hpp"
 //graphviz的头文件
-#include"graphviz/gvc.h"
-#include"graphviz/cgraph.h"
+#include "graphviz/gvc.h"
 
 using namespace std;
 
@@ -74,18 +73,19 @@ struct TreeNode {
         if(root==nullptr){
             return;
         }
-        auto graph= agopen("analyze_tree",Agdirected,nullptr);
+        auto graph= agopen(const_cast<char*>("analyze_tree"),Agdirected,nullptr);
         std::queue<const TreeNode*> q;
+        int id=0;
         q.push(root);
         while(!q.empty()){
-            size_t n=q.size();
+            int n=q.size();
             while(n--){
                 auto t=q.front();
                 q.pop();
-                auto node= agnode(graph,const_cast<char*>(t->content_.c_str()),true);
+                auto node= agnode(graph,const_cast<char*>((t->content_+std::to_string(id++)).c_str()),true);
                 for(int i=t->kids_.size()-1;i>=0;i-=1){
                     q.push(t->kids_[i]);
-                    auto node1= agnode(graph,const_cast<char*>(t->kids_[i]->content_.c_str()),true);
+                    auto node1= agnode(graph,const_cast<char*>((t->kids_[i]->content_+std::to_string(id++)).c_str()),true);
                     agedge(graph,node,node1,nullptr,true);
                 }
             }

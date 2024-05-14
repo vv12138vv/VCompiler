@@ -1,6 +1,7 @@
 #include "lexer.hpp"
 #include "parser.hpp"
 #include "cmdline.h"
+#include <unistd.h>
 
 //int main() {
 //    string lexer_rule_file(R"(C:\Users\jgss9\Desktop\VCompiler\lexer\rules\lex_rule.txt)");
@@ -16,10 +17,10 @@
 
 int main(int argc,char *argv[]){
     cmdline::parser cmd_parser;
-    cmd_parser.add<string>("lexer_rules_file",'l',"lexer rules file name",true,"");
-    cmd_parser.add<string>("key_words_file",'k',"keywords file name",true,"");
-    cmd_parser.add<string>("grammar_rules_file",'g',"grammar rules file name", true,"");
-    cmd_parser.add<string>("code_file",'c',"code file name",true,"");
+    cmd_parser.add<string>("lexer_rules_file",'l',"lexer rules file name",false,"../rules/lex_rule.txt");
+    cmd_parser.add<string>("key_words_file",'k',"keywords file name",false,"../rules/key_words.txt");
+    cmd_parser.add<string>("grammar_rules_file",'g',"grammar rules file name", false,"../rules/grammar_rules.txt");
+    cmd_parser.add<string>("code_file",'c',"code file name",false,"../code/sql_code.txt");
     cmd_parser.add<string>("tokens_save_file",'t',"tokens file save path",false,"");
     cmd_parser.parse_check(argc,argv);
     string lexer_rules_file=cmd_parser.get<string>("lexer_rules_file");

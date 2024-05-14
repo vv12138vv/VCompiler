@@ -1,9 +1,7 @@
-cmake_minimum_required(VERSION 3.26)
+cmake_minimum_required(VERSION 3.20)
 project(VCompiler)
 
 set(CMAKE_CXX_STANDARD 17)
-
-
 
 include_directories(
         src/common
@@ -20,5 +18,6 @@ add_compile_options(-std=c++17)
 add_executable(VCompiler src/main.cpp)
 
 target_link_libraries(VCompiler lexer_lib parser_lib)
+
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin)
