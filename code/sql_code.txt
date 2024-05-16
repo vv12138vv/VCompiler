@@ -1,1 +1,1 @@
-SELECT student.name,student.score FROM student WHERE student.id<10 AND student.age IN ( SELECT student.age FROM student WHERE student.weight>70 );
+SELECT student.id,student.name,student.age FROM student WHERE student.height>170;

@@ -1,0 +1,1 @@
+SELECT student.score,student.average_score FROM student JOIN person WHERE student.name=person.name AND person.age<18 AND student.phone_number IN (SELECT person.phone_number FROM person WHERE person.height>170);

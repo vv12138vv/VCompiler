@@ -2,10 +2,13 @@
 "SqlStatement"->"InsertStatement"';'
 "SqlStatement"->"UpdateStatement"';'
 "SqlStatement"->"DeleteStatement"';'
-"SelectStatement"->'SELECT'"SelectList"'FROM'"TableName"'WHERE'"WhereStatement"
+"SelectStatement"->'SELECT'"SelectList"'FROM'"TableNames"'WHERE'"WhereStatement"
 "ColumnName"->'[identifier]''.''[identifier]'
 "ColumnName"->'[identifier]'
-"TableName"->'[identifier]'
+"TableNames"->'[identifier]'"OtherTableNames"
+"OtherTableNames"->',''[identifier]'"OtherTableNames"
+"OtherTableNames"->'JOIN''[identifier]'"OtherTableNames"
+"OtherTableNames"->'@'
 "SelectList"->"ColumnName""OtherColumns"
 "OtherColumns"->','"ColumnName""OtherColumns"
 "OtherColumns"->'@'
